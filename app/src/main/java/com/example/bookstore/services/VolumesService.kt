@@ -1,27 +1,18 @@
 package com.example.bookstore.services
 
-import com.example.bookstore.dto.ErrorResponse
-import com.example.bookstore.dto.Volume
-import com.example.bookstore.interfaces.VolumeApi
-import com.example.bookstore.retrofit.RetrofitInstance
-import com.fasterxml.jackson.databind.ObjectMapper
-import okhttp3.ResponseBody
-import retrofit2.Response
-
 class VolumesService {
+    /*private val retrofit = RetrofitInstance.RetrofitClient.getClient()
+    private val volumeApi = retrofit.create(VolumeApi::class.java)
 
-    private fun volumesResponse() : Response<List<Volume.Volume>>{
-        val retrofit = RetrofitInstance.RetrofitClient.getClient()
-        val volumeApi = retrofit.create(VolumeApi::class.java)
-
+    fun getVolumes() : Response<List<Volume.Volume>>{
         return volumeApi.getVolumesQuery(
             mapOf("q" to "ios",
                 "maxResults" to "20",
                 "startIndex" to "0")
                 ).execute()
-    }
+    }*/
 
-    fun successfulUsersResponse() {
+    /*fun successfulUsersResponse() {
         val volumesResponse = volumesResponse()
 
         val successful = volumesResponse.isSuccessful
@@ -42,5 +33,5 @@ class VolumesService {
     fun headersUsersResponse() {
         val headers = volumesResponse().headers()
         val customHeaderValue = headers["custom-header"]
-    }
+    }*/
 }

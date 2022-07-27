@@ -1,5 +1,6 @@
 package com.example.bookstore.retrofit
 
+import com.example.bookstore.interfaces.VolumeApi
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -12,17 +13,24 @@ class RetrofitInstance {
 
         private const val BASE_URL = "https://www.googleapis.com/books/v1/"
 
-        private val okHttpClient = OkHttpClient()
-            .newBuilder()
-            .addInterceptor(RequestInterceptor)
-            .build()
+        val retrofitClient: Retrofit.Builder by lazy {
 
-        fun getClient(): Retrofit =
+            val okHttpClient = OkHttpClient()
+                .newBuilder()
+                .addInterceptor(RequestInterceptor)
+                .build()
+
             Retrofit.Builder()
                 .client(okHttpClient)
                 .baseUrl(BASE_URL)
                 .addConverterFactory(JacksonConverterFactory.create())
+        }
+
+        val apiInterface: VolumeApi by lazy {
+            retrofitClient
                 .build()
+                .create(VolumeApi::class.java)
+        }
     }
 
     object RequestInterceptor : Interceptor {

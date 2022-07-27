@@ -1,13 +1,16 @@
 package com.example.bookstore.viewmodels
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.bookstore.dto.Volume
+import com.example.bookstore.dto.VolumeDto
+import com.example.bookstore.repository.VolumesRepository
 
 class FirstViewModel : ViewModel() {
 
-    lateinit var liveDataList: MutableList<List<Volume.Volume>>
+    var liveDataList: MutableLiveData<List<VolumeDto.Volume>>? = null
 
-    fun getList() : MutableList<List<Volume.Volume>> {
-        return liveDataList
+    fun getListData(): LiveData<List<VolumeDto.Volume>>? {
+        return VolumesRepository.getServicesApiCall()
     }
 }

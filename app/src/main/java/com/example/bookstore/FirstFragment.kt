@@ -29,7 +29,7 @@ class FirstFragment : Fragment() {
 
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
         vm = ViewModelProvider(this)[FirstViewModel::class.java]
-
+        vm?.getListData()
 
         return binding.root
     }
