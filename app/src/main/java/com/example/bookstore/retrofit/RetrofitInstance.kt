@@ -5,7 +5,7 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
 import retrofit2.Retrofit
-import retrofit2.converter.jackson.JacksonConverterFactory
+import retrofit2.converter.gson.GsonConverterFactory
 
 class RetrofitInstance {
 
@@ -13,7 +13,7 @@ class RetrofitInstance {
 
         private const val BASE_URL = "https://www.googleapis.com/books/v1/"
 
-        val retrofitClient: Retrofit.Builder by lazy {
+        private val retrofitClient: Retrofit.Builder by lazy {
 
             val okHttpClient = OkHttpClient()
                 .newBuilder()
@@ -23,7 +23,7 @@ class RetrofitInstance {
             Retrofit.Builder()
                 .client(okHttpClient)
                 .baseUrl(BASE_URL)
-                .addConverterFactory(JacksonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
         }
 
         val apiInterface: VolumeApi by lazy {
