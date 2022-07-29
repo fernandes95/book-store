@@ -1,6 +1,6 @@
 package com.example.bookstore.dto
 
-class VolumeDto {
+class VolumeDto {//TODO REVISE GOOGLE MODEL DOCUMENTATION TO CHECK WHICH FIELDS ARE EXPECTED TO BE NULL
 
     data class Volumes (
         val kind: String?,
@@ -9,9 +9,9 @@ class VolumeDto {
     )
 
     data class Volume (
-        val kind: String?,
-        val id: String?,
-        val etag: String?,
+        val kind: String,
+        val id: String,
+        val etag: String,
         val selfLink: String?,
         val volumeInfo: VolumeInfo?,
         val saleInfo: SaleInfo?,

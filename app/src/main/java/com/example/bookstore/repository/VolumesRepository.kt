@@ -9,10 +9,9 @@ import retrofit2.Callback
 import retrofit2.Response
 
 object VolumesRepository {
-    private val volumesList = MutableLiveData<List<VolumeDto.Volume>>()
 
-    fun getServicesApiCall(): MutableLiveData<List<VolumeDto.Volume>> {
-
+    fun getVolumesApiCall(): MutableLiveData<List<VolumeDto.Volume>> {
+        val volumesList = MutableLiveData<List<VolumeDto.Volume>>()
         val call = RetrofitInstance.RetrofitClient.apiInterface.getVolumesQuery(
                         mapOf("q" to "ios",
                         "maxResults" to "20",
@@ -35,5 +34,26 @@ object VolumesRepository {
         })
 
         return volumesList
+    }
+
+    fun getVolumeDetailApiCall(volumeId: String): MutableLiveData<VolumeDto.Volume> {
+        val volume = MutableLiveData<VolumeDto.Volume>()
+        val call = RetrofitInstance.RetrofitClient.apiInterface.getVolumeById(volumeId)
+
+        call.enqueue(object: Callback<VolumeDto.Volume> {
+            override fun onFailure(call: Call<VolumeDto.Volume>, t: Throwable) {
+                Log.v("DEBUG : ", t.message.toString())
+            }
+
+            override fun onResponse(
+                call: Call<VolumeDto.Volume>,
+                response: Response<VolumeDto.Volume>
+            ) {
+                Log.v("DEBUG : ", response.body().toString())
+                volume.value = response.body()
+            }
+        })
+
+        return volume
     }
 }

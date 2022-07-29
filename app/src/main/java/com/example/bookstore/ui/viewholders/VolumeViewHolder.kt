@@ -17,7 +17,7 @@ class VolumeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         title.text = item?.volumeInfo?.title
 
         if(item?.volumeInfo?.imageLinks?.thumbnail.isNullOrEmpty()) return
-
+        //TODO ADD ERROR DRAWABLE
         Glide.with(context)
             .load(item?.volumeInfo?.imageLinks?.thumbnail)
             .into(thumb)
