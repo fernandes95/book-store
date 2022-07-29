@@ -1,6 +1,7 @@
 package com.example.bookstore.ui.fragments
 
 import android.os.Bundle
+import android.text.Html
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -74,7 +75,13 @@ class VolumeDetailFragment : Fragment() {
         //CONTENT
         binding.volumeDetailTitleContentTv.text = volume.volumeInfo?.title
         binding.volumeDetailAuthorContentTv.text = authors
-        binding.volumeDetailDescriptionContentTv.text = volume.volumeInfo?.description
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            binding.volumeDetailDescriptionContentTv.text = Html.fromHtml(volume.volumeInfo?.description, Html.FROM_HTML_MODE_LEGACY);
+        } else {
+            binding.volumeDetailDescriptionContentTv.text = Html.fromHtml(volume.volumeInfo?.description);
+        }
+
         binding.volumeDetailBuyBtn.isEnabled = volume.saleInfo?.saleability == "FOR_SALE"//TODO CREATE ENUM FOR saleability
     }
 }
