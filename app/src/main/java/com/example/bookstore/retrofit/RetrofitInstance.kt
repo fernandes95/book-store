@@ -1,6 +1,7 @@
 package com.example.bookstore.retrofit
 
 import com.example.bookstore.interfaces.VolumeApi
+import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -24,6 +25,7 @@ class RetrofitInstance {
                 .client(okHttpClient)
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
         }
 
         val apiInterface: VolumeApi by lazy {

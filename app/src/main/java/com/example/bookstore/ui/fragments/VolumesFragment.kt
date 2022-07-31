@@ -1,19 +1,21 @@
 package com.example.bookstore.ui.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.bookstore.R
 import com.example.bookstore.databinding.FragmentVolumesBinding
 import com.example.bookstore.dto.VolumeDto
 import com.example.bookstore.ui.adapters.VolumesAdapter
 import com.example.bookstore.viewmodels.VolumesViewModel
+
 
 class VolumesFragment : Fragment() {
 
@@ -21,6 +23,11 @@ class VolumesFragment : Fragment() {
     private var _binding: FragmentVolumesBinding? = null
     private var vm : VolumesViewModel? = null
     private val binding get() = _binding!!
+    private lateinit var layoutManager : LinearLayoutManager
+
+    private val loading = false
+    private var totalItemCount : Int? = null
+    private var lastVisibleItem : Int? = null
 
     companion object {
         const val VOLUME_ID = "VOLUME_ID"
@@ -35,6 +42,7 @@ class VolumesFragment : Fragment() {
         vm = ViewModelProvider(this)[VolumesViewModel::class.java]
 
         updateUi()
+        populateList()
 
         return binding.root
     }
@@ -45,18 +53,43 @@ class VolumesFragment : Fragment() {
     }
 
     private fun updateUi(){
-        binding.volumesRv.layoutManager = LinearLayoutManager(context)
+        layoutManager = LinearLayoutManager(context)
+        binding.volumesRv.layoutManager = layoutManager
+    }
+
+    private fun populateList(){
         vm?.getListData()?.observe(viewLifecycleOwner) { list ->
             data.value = list
 
-            val clickListener = VolumesAdapter.OnClickListener { id ->
-                val bundle = Bundle()
-                bundle.putString(VOLUME_ID, id)
-
-                findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment, bundle)
-            }
-
-            binding.volumesRv.adapter = context?.let { VolumesAdapter(it, data, clickListener) }
+            recyclerScrollListener()
+            binding.volumesRv.adapter = context?.let { VolumesAdapter(it, data, clickListener()) }
+            binding.volumesPb.visibility = View.GONE
         }
+    }
+
+    private fun clickListener() : VolumesAdapter.OnClickListener{
+        return VolumesAdapter.OnClickListener { id ->
+            val bundle = Bundle()
+            bundle.putString(VOLUME_ID, id)
+
+            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment, bundle)
+        }
+    }
+
+    private fun recyclerScrollListener() {
+        binding.volumesRv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(
+                recyclerView: RecyclerView,
+                dx: Int, dy: Int
+            ) {
+
+                totalItemCount = binding.volumesRv.layoutManager?.itemCount
+                lastVisibleItem = layoutManager.findLastVisibleItemPosition() + 1
+
+                if(lastVisibleItem == totalItemCount){
+                    binding.volumesBottomPb.visibility = View.VISIBLE
+                }
+            }
+        })
     }
 }
