@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.example.bookstore.dto.VolumeDto
 import com.example.bookstore.repository.VolumesRepository
+import com.example.bookstore.room.FavoriteDatabase
 
 class VolumesViewModel : ViewModel() {
 

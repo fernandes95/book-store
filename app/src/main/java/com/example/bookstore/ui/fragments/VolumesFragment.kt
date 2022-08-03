@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
@@ -25,7 +26,8 @@ class VolumesFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var layoutManager : LinearLayoutManager
 
-    private val loading = false
+    private var loading = false
+    private var isFilter = false
     private var totalItemCount : Int? = null
     private var lastVisibleItem : Int? = null
 
@@ -64,6 +66,8 @@ class VolumesFragment : Fragment() {
             recyclerScrollListener()
             binding.volumesRv.adapter = context?.let { VolumesAdapter(it, data, clickListener()) }
             binding.volumesPb.visibility = View.GONE
+
+            binding.volumesFilterCl.setOnClickListener(filterOnclickListener())
         }
     }
 
@@ -73,6 +77,15 @@ class VolumesFragment : Fragment() {
             bundle.putString(VOLUME_ID, id)
 
             findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment, bundle)
+        }
+    }
+
+    private fun filterOnclickListener() : View.OnClickListener {
+        return View.OnClickListener {
+            isFilter = !isFilter
+            var imageResource = if(isFilter) R.drawable.ic_filter else R.drawable.ic_filter_outlined
+
+            binding.volumesFilterIv.setImageDrawable(ContextCompat.getDrawable(context!!, imageResource))
         }
     }
 
