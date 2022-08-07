@@ -9,22 +9,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
-import com.example.bookstore.MainActivity.Companion.db
 import com.example.bookstore.R
 import com.example.bookstore.databinding.FragmentVolumeDetailBinding
 import com.example.bookstore.dto.VolumeDto
-import com.example.bookstore.room.toVolumeEntity
+import com.example.bookstore.room.FavoritesApplication
 import com.example.bookstore.ui.fragments.VolumesFragment.Companion.VOLUME_ID
 import com.example.bookstore.viewmodels.VolumeDetailViewModel
+import com.example.bookstore.viewmodels.VolumeDetailViewModelFactory
 
 class VolumeDetailFragment : Fragment() {
 
     private var _binding: FragmentVolumeDetailBinding? = null
     private val binding get() = _binding!!
-    private var vm : VolumeDetailViewModel? = null
-    private lateinit var volumeSelected : VolumeDto.Volume
+    private val vm: VolumeDetailViewModel by viewModels {
+        VolumeDetailViewModelFactory((activity?.application as FavoritesApplication).repository)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,7 +33,7 @@ class VolumeDetailFragment : Fragment() {
     ): View? {
 
         _binding = FragmentVolumeDetailBinding.inflate(inflater, container, false)
-        vm = ViewModelProvider(this)[VolumeDetailViewModel::class.java]
+
         updateUi()
 
         return binding.root
@@ -45,31 +46,26 @@ class VolumeDetailFragment : Fragment() {
 
     private fun favoriteOnclickListener() : View.OnClickListener {
         return View.OnClickListener {
-            val volumeExists = db.volumeDao().verifyExistsById(volumeSelected.id)
 
-            if(volumeExists) {
-                val volume = db.volumeDao().findById(volumeSelected.id)
-                db.volumeDao().delete(volume)
-            }
+            if(vm.isFavorite)
+                vm.delete()
             else
-                db.volumeDao().insertVolume(volumeSelected.toVolumeEntity())
+                vm.insert()
 
-            setFavoriteImage(!volumeExists)
+            setFavoriteImage()
         }
     }
 
-    private fun setFavoriteImage(isFav : Boolean){
-        var imageResource = if(isFav) R.drawable.ic_favorite else R.drawable.ic_favorite_border
+    private fun setFavoriteImage(){
+        var imageResource = if(vm.isFavorite) R.drawable.ic_favorite else R.drawable.ic_favorite_border
 
         binding.volumeDetailFavoriteIv.setImageDrawable(ContextCompat.getDrawable(context!!, imageResource))
     }
 
     private fun updateUi(){
-        val volumeId = arguments?.getString(VOLUME_ID).toString()
         binding.volumeDetailFavoriteIv.setOnClickListener(favoriteOnclickListener())
-
+        val volumeId = arguments?.getString(VOLUME_ID).toString()
         vm?.getVolume(volumeId)?.observe(viewLifecycleOwner) { volume ->
-            volumeSelected = volume
 
             //TODO ADD ERROR DRAWABLE
             if(!volume?.volumeInfo?.imageLinks?.thumbnail.isNullOrEmpty()) {
