@@ -6,29 +6,27 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bookstore.R
 import com.example.bookstore.databinding.FragmentVolumesBinding
 import com.example.bookstore.dto.VolumeDto
-import com.example.bookstore.room.FavoritesApplication
+import com.example.bookstore.room.VolumeEntity
 import com.example.bookstore.room.toVolume
 import com.example.bookstore.ui.adapters.VolumesAdapter
 import com.example.bookstore.viewmodels.VolumesViewModel
-import com.example.bookstore.viewmodels.VolumesViewModelFactory
 
 class VolumesFragment : Fragment() {
 
     private var data = MutableLiveData<List<VolumeDto.Volume>>()
     private var favData = MutableLiveData<List<VolumeDto.Volume>>()
     private var _binding: FragmentVolumesBinding? = null
-    private val vm: VolumesViewModel by viewModels {
-        VolumesViewModelFactory((activity?.application as FavoritesApplication).repository)
-    }
+    private var vm : VolumesViewModel? = null
 
     private val binding get() = _binding!!
     private lateinit var layoutManager : LinearLayoutManager
@@ -42,6 +40,7 @@ class VolumesFragment : Fragment() {
 
     companion object {
         const val VOLUME_ID = "VOLUME_ID"
+        const val FAVORITE_UID = "FAVORITE_UID"
     }
 
     override fun onCreateView(
@@ -50,26 +49,28 @@ class VolumesFragment : Fragment() {
     ): View? {
 
         _binding = FragmentVolumesBinding.inflate(inflater, container, false)
+        vm = ViewModelProvider(this)[VolumesViewModel::class.java]
 
         updateUi()
         populateList()
 
-        vm.favorites.observe(viewLifecycleOwner, Observer { favorites ->
+        vm?.favorites?.observe(viewLifecycleOwner, Observer { favorites ->
             if(!favorites.any()) return@Observer
-            
-            var listConverted = ArrayList<VolumeDto.Volume>()
-            favorites.forEach {
-                listConverted.add(it.toVolume())
-            }
 
-            if(listConverted.any()) {
-                favData.value = listConverted.toList()
-
-                favAdapter = context?.let { VolumesAdapter(it, favData, clickListener()) }
-            }
+            favData.value = convertEntityList(favorites)
+            favAdapter = context?.let { VolumesAdapter(it, favData, clickListener()) }
         })
 
         return binding.root
+    }
+
+    private fun convertEntityList(list : List<VolumeEntity>) : List<VolumeDto.Volume> {
+        var listConverted = ArrayList<VolumeDto.Volume>()
+        list.forEach {
+            listConverted.add(it.toVolume())
+        }
+
+        return listConverted.toList()
     }
 
     override fun onDestroyView() {
@@ -101,8 +102,11 @@ class VolumesFragment : Fragment() {
 
     private fun clickListener() : VolumesAdapter.OnClickListener{
         return VolumesAdapter.OnClickListener { id ->
+
+
             val bundle = Bundle()
             bundle.putString(VOLUME_ID, id)
+            bundle.putString(FAVORITE_UID, id)
 
             findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment, bundle)
         }

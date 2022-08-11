@@ -1,43 +1,51 @@
 package com.example.bookstore.viewmodels
 
+import android.app.Application
+import android.content.Context
 import androidx.lifecycle.*
 import com.example.bookstore.dto.VolumeDto
 import com.example.bookstore.repository.VolumesRepository
-import com.example.bookstore.room.FavoritesRepository
-import com.example.bookstore.room.VolumeEntity
-import com.example.bookstore.room.toVolumeEntity
+import com.example.bookstore.room.*
 import kotlinx.coroutines.launch
 
-class VolumeDetailViewModel(private var repository: FavoritesRepository) : ViewModel() {
+class VolumeDetailViewModel(app: Application) : AndroidViewModel(app) {
 
-    var volumeId : String? = null
-    private var selectedVolume : VolumeDto.Volume? = null
+    private var repository : FavoritesRepository? = null
 
-    val favorites: LiveData<List<VolumeEntity>> = repository.allVolumes.asLiveData()
-    val isFavorite: Boolean = repository.volumeExists(volumeId!!)
+    val favoriteUid : Int? = null
+    var selectedVolume : VolumeDto.Volume? = null
+    private var volEntity : VolumeEntity? = null
+    var isLoading : MutableLiveData<Boolean> = MutableLiveData(false)
 
-    fun insert() = viewModelScope.launch {
-        selectedVolume?.toVolumeEntity()?.let { repository.insert(it) }
-    }
+    fun setFavorite(context: Context){
+        isLoading.value = true
 
-    fun delete() = viewModelScope.launch {
-        selectedVolume?.toVolumeEntity()?.let { repository.delete(it) }
+            try {
+                if(volEntity != null)
+                    repository?.delete(volEntity!!)
+                else {
+                    var vol = selectedVolume?.toVolumeEntity()
+                    vol?.let { repository?.insert(it) }
+                }
+
+            } catch (e: Exception) {
+                // handler error
+            }
+            finally {
+                isLoading.value = false
+            }
+
+        //selectedVolume?.toVolumeEntity()?.let { FavoritesRepository.setFavorite(context, it) }
+
+        /*if(isFav == true){
+            FavoritesRepository.getAllVolumes(context)
+            getVolumeDb(context)
+            isLoading.value = false
+        }*/
+
     }
 
     fun getVolume(volumeId : String): LiveData<VolumeDto.Volume>? {
-        this.volumeId = volumeId
-        val vol =  VolumesRepository.getVolumeDetailApiCall(volumeId)
-        selectedVolume = vol.value
-        return vol
-    }
-}
-
-class VolumeDetailViewModelFactory(private val repository: FavoritesRepository) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(VolumeDetailViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return VolumeDetailViewModel(repository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
+        return VolumesRepository.getVolumeDetailApiCall(volumeId)
     }
 }

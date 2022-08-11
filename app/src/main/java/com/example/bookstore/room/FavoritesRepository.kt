@@ -1,28 +1,42 @@
 package com.example.bookstore.room
 
-import androidx.annotation.WorkerThread
-import kotlinx.coroutines.flow.Flow
+import com.example.bookstore.utils.subscribeOnBackground
+import android.app.Application
+import androidx.lifecycle.LiveData
 
-class FavoritesRepository(private val volumeDao: VolumeDao) {
+class FavoritesRepository(application: Application) {
 
-    // Room executes all queries on a separate thread.
-    // Observed Flow will notify the observer when the data has changed.
-    val allVolumes: Flow<List<VolumeEntity>> = volumeDao.getAll()
+    private var volDao: VolumeDao
+    private var allFavorites: LiveData<List<VolumeEntity>>
 
-    fun volumeExists(id : String) : Boolean {return volumeDao.verifyExistsById(id)}
+    private val database = FavoriteDatabase.getInstance(application)
 
-    // By default Room runs suspend queries off the main thread, therefore, we don't need to
-    // implement anything else to ensure we're not doing long running database work
-    // off the main thread.
-    @Suppress("RedundantSuspendModifier")
-    @WorkerThread
-    suspend fun insert(volume: VolumeEntity) {
-        volumeDao.insertVolume(volume)
+    init {
+        volDao = database.volumeDao()
+        allFavorites = volDao.getAll()
     }
 
-    @Suppress("RedundantSuspendModifier")
-    @WorkerThread
-    suspend fun delete(volume: VolumeEntity) {
-        volumeDao.delete(volume)
+    fun findById(volumeId: String): VolumeEntity{
+        return volDao.findById(volumeId)
+    }
+
+    fun verifyExistsById(volumeId: String): Boolean{
+        return volDao.verifyExistsById(volumeId)
+    }
+
+    fun insert(volume: VolumeEntity) {
+        subscribeOnBackground {
+            volDao.insert(volume)
+        }
+    }
+
+    fun delete(volume: VolumeEntity) {
+        subscribeOnBackground {
+            volDao.delete(volume)
+        }
+    }
+
+    fun getAll(): LiveData<List<VolumeEntity>> {
+        return allFavorites
     }
 }
