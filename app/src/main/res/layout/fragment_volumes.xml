@@ -13,6 +13,7 @@
         android:background="@color/white"
         android:elevation="10dp"
         android:visibility="gone"
+        android:clickable="true"
         tools:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/volumesRv"
         app:layout_constraintTop_toTopOf="parent"

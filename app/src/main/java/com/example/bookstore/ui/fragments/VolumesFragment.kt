@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -30,6 +31,7 @@ class VolumesFragment : Fragment() {
 
     private lateinit var layoutManager : LinearLayoutManager
     private var adapter : VolumesAdapter? = null
+    private var favoritesAdapter : VolumesAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -71,10 +73,11 @@ class VolumesFragment : Fragment() {
         vm.getListData().observe(viewLifecycleOwner) { list ->
             layoutManager = LinearLayoutManager(context)
             binding.volumesRv.layoutManager = layoutManager
-            adapter = VolumesAdapter( list, clickListener())
+            adapter = VolumesAdapter(list, clickListener())
             binding.volumesRv.adapter = adapter
             binding.volumesPb.visibility = View.GONE
             binding.volumesFilterCl.setOnClickListener(filterOnclickListener())
+            isFilter = false
         }
     }
 
@@ -99,35 +102,32 @@ class VolumesFragment : Fragment() {
 
     private fun observeFavoriteList() {
         vm.repository.data.observe(viewLifecycleOwner) { favorites ->
-            /*favorites.let {
-                val list = convertEntityList(it)
-                if (it != null && it.isNotEmpty()) {
-                    adapter?.setUpData(list)
-                }
-            }*/
-
             favorites.let {
                 binding.volumesFilterCl.visibility = if(it != null && it.isNotEmpty()) View.VISIBLE else View.GONE
+                val list = convertEntityList(favorites)
+
+                if(favoritesAdapter == null)
+                    favoritesAdapter = VolumesAdapter(list, clickListener())
+                else
+                    favoritesAdapter!!.setUpData(list)
             }
         }
     }
 
-    private fun convertEntityList(list : List<FavoriteEntity>) : List<VolumeDto.Volume> {
+    private fun convertEntityList(list : List<FavoriteEntity>) : ArrayList<VolumeDto.Volume> {
         val listConverted = ArrayList<VolumeDto.Volume>()
-        list.forEach {
-            listConverted.add(it.toVolume())
-        }
+        list.forEach { listConverted.add(it.toVolume())}
 
-        return listConverted.toList()
+        return listConverted
     }
 
     private fun filterOnclickListener() : View.OnClickListener {
         return View.OnClickListener {
-            /*isFilter = !isFilter
+            isFilter = !isFilter
             val imageResource = if(isFilter) R.drawable.ic_filter else R.drawable.ic_filter_outlined
 
             binding.volumesFilterIv.setImageDrawable(ContextCompat.getDrawable(requireContext(), imageResource))
-            binding.volumesRv.adapter = if(isFilter) favAdapter else adapter*/
+            binding.volumesRv.adapter = if(isFilter) favoritesAdapter else adapter
         }
     }
 }
