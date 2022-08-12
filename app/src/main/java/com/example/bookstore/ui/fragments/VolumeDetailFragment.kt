@@ -10,7 +10,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.observe
 import com.bumptech.glide.Glide
 import com.example.bookstore.R
 import com.example.bookstore.databinding.FragmentVolumeDetailBinding
@@ -28,7 +27,7 @@ class VolumeDetailFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         _binding = FragmentVolumeDetailBinding.inflate(inflater, container, false)
 
@@ -61,9 +60,7 @@ class VolumeDetailFragment : Fragment() {
     private fun observeIsError() {//TODO
         vm.repository.isError.observe(viewLifecycleOwner) { isError ->
             isError.let {
-                if (it) {
-                } else {
-                }
+
             }
         }
     }
@@ -87,7 +84,7 @@ class VolumeDetailFragment : Fragment() {
     }
 
     private fun setFavoriteImage(isFav : Boolean){
-        var imageResource = if(isFav) R.drawable.ic_favorite else R.drawable.ic_favorite_border
+        val imageResource = if(isFav) R.drawable.ic_favorite else R.drawable.ic_favorite_border
         binding.volumeDetailFavoriteIv.setImageDrawable(ContextCompat.getDrawable(requireContext(), imageResource))
     }
 
@@ -128,21 +125,21 @@ class VolumeDetailFragment : Fragment() {
                 "Author"
 
         binding.volumeDetailAuthorContentTv.text =
-            if(authorsSize!! > 1)
-                volume.volumeInfo?.authors?.joinToString(separator = ", ")
+            if(authorsSize > 1)
+                volume.volumeInfo.authors.joinToString(separator = ", ")
             else
-                volume.volumeInfo?.authors?.joinToString()
+                volume.volumeInfo.authors.joinToString()
 
         //CONTENT
-        binding.volumeDetailTitleContentTv.text = volume.volumeInfo?.title
+        binding.volumeDetailTitleContentTv.text = volume.volumeInfo.title
 
-        if(volume.volumeInfo?.description != null) {
+        if(volume.volumeInfo.description != null) {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
                 binding.volumeDetailDescriptionContentTv.text =
-                    Html.fromHtml(volume.volumeInfo?.description, Html.FROM_HTML_MODE_LEGACY)
+                    Html.fromHtml(volume.volumeInfo.description, Html.FROM_HTML_MODE_LEGACY)
             } else {
                 binding.volumeDetailDescriptionContentTv.text =
-                    Html.fromHtml(volume.volumeInfo?.description)
+                    Html.fromHtml(volume.volumeInfo.description)
             }
         }
 

@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.bookstore.R
@@ -35,7 +34,7 @@ class VolumesFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         _binding = FragmentVolumesBinding.inflate(inflater, container, false)
 
@@ -63,18 +62,16 @@ class VolumesFragment : Fragment() {
     private fun observeIsError() {//TODO
         vm.repository.isError.observe(viewLifecycleOwner) { isError ->
             isError.let {
-                if (it) {
-                } else {
-                }
+
             }
         }
     }
 
     private fun populateList(){
-        vm.getListData()?.observe(viewLifecycleOwner) { list ->
+        vm.getListData().observe(viewLifecycleOwner) { list ->
             layoutManager = LinearLayoutManager(context)
             binding.volumesRv.layoutManager = layoutManager
-            adapter = context?.let { VolumesAdapter(it, list, clickListener()) }
+            adapter = VolumesAdapter( list, clickListener())
             binding.volumesRv.adapter = adapter
             binding.volumesPb.visibility = View.GONE
             binding.volumesFilterCl.setOnClickListener(filterOnclickListener())
@@ -96,7 +93,7 @@ class VolumesFragment : Fragment() {
             val bundle = Bundle()
             bundle.putString(VOLUME_ID, id)
 
-            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment, bundle)
+            findNavController().navigate(R.id.action_VolumesFragment_to_VolumeDetailFragment, bundle)
         }
     }
 
@@ -116,7 +113,7 @@ class VolumesFragment : Fragment() {
     }
 
     private fun convertEntityList(list : List<FavoriteEntity>) : List<VolumeDto.Volume> {
-        var listConverted = ArrayList<VolumeDto.Volume>()
+        val listConverted = ArrayList<VolumeDto.Volume>()
         list.forEach {
             listConverted.add(it.toVolume())
         }
@@ -127,7 +124,7 @@ class VolumesFragment : Fragment() {
     private fun filterOnclickListener() : View.OnClickListener {
         return View.OnClickListener {
             /*isFilter = !isFilter
-            var imageResource = if(isFilter) R.drawable.ic_filter else R.drawable.ic_filter_outlined
+            val imageResource = if(isFilter) R.drawable.ic_filter else R.drawable.ic_filter_outlined
 
             binding.volumesFilterIv.setImageDrawable(ContextCompat.getDrawable(requireContext(), imageResource))
             binding.volumesRv.adapter = if(isFilter) favAdapter else adapter*/

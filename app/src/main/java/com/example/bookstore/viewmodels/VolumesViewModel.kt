@@ -26,7 +26,7 @@ class VolumesViewModel : ViewModel() {
         compositeDisposable.clear()
     }
 
-    fun getListData(): LiveData<ArrayList<VolumeDto.Volume>>? {
+    fun getListData(): LiveData<ArrayList<VolumeDto.Volume>> {
         repository.fetchFavoritesFromDatabase()
         return VolumesRepository.getVolumesApiCall()
     }

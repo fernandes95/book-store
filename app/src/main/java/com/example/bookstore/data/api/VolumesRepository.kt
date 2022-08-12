@@ -28,7 +28,7 @@ object VolumesRepository {
                 Log.v("DEBUG : ", response.body().toString())
 
                 val list = response.body()?.items
-                volumesList.value = ArrayList(list)
+                volumesList.value = list?.let { ArrayList(it) }
             }
         })
 
