@@ -12,6 +12,8 @@
         android:layout_height="wrap_content"
         android:background="@color/white"
         android:elevation="10dp"
+        android:visibility="gone"
+        tools:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/volumesRv"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"

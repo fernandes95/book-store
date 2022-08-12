@@ -6,10 +6,10 @@ import android.view.ViewGroup
 import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bookstore.R
-import com.example.bookstore.dto.VolumeDto
+import com.example.bookstore.data.api.dto.VolumeDto
 import com.example.bookstore.ui.viewholders.VolumeViewHolder
 
-class VolumesAdapter (private val context: Context, private val items : LiveData<List<VolumeDto.Volume>>, private val onClickListener: OnClickListener) :
+class VolumesAdapter (private val context: Context, private val items : ArrayList<VolumeDto.Volume>, private val onClickListener: OnClickListener) :
     RecyclerView.Adapter<VolumeViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VolumeViewHolder {
@@ -17,11 +17,11 @@ class VolumesAdapter (private val context: Context, private val items : LiveData
     }
 
     override fun getItemCount(): Int {
-        return items.value!!.size
+        return items.size
     }
 
     override fun onBindViewHolder(holder: VolumeViewHolder, position: Int) {
-        val item = items.value!![position]
+        val item = items[position]
 
         holder.bind(item, context)
         holder.itemView.setOnClickListener { onClickListener.onClick(item.id)}
@@ -29,5 +29,13 @@ class VolumesAdapter (private val context: Context, private val items : LiveData
 
     class OnClickListener(val clickListener: (volumeId: String) -> Unit) {
         fun onClick(volumeId: String) = clickListener(volumeId)
+    }
+
+    fun setUpData(volumes: List<VolumeDto.Volume>) {
+        with(items){
+            clear()
+            addAll(volumes)
+            notifyDataSetChanged()
+        }
     }
 }

@@ -1,51 +1,64 @@
 package com.example.bookstore.viewmodels
 
-import android.app.Application
-import android.content.Context
 import androidx.lifecycle.*
-import com.example.bookstore.dto.VolumeDto
-import com.example.bookstore.repository.VolumesRepository
-import com.example.bookstore.room.*
-import kotlinx.coroutines.launch
+import com.example.bookstore.data.api.dto.VolumeDto
+import com.example.bookstore.data.api.dto.toVolumeEntity
+import com.example.bookstore.data.api.VolumesRepository
+import com.example.bookstore.data.room.FavoriteEntity
+import com.example.bookstore.data.room.FavoriteRepository
+import com.example.bookstore.di.DaggerAppComponent
+import io.reactivex.disposables.CompositeDisposable
+import javax.inject.Inject
 
-class VolumeDetailViewModel(app: Application) : AndroidViewModel(app) {
+class VolumeDetailViewModel : ViewModel() {
 
-    private var repository : FavoritesRepository? = null
-
-    val favoriteUid : Int? = null
+    var volumeId : String = ""
     var selectedVolume : VolumeDto.Volume? = null
-    private var volEntity : VolumeEntity? = null
-    var isLoading : MutableLiveData<Boolean> = MutableLiveData(false)
+    var isLoading : MutableLiveData<Boolean> = MutableLiveData(true)
+    var isFavorite : MutableLiveData<Boolean> = MutableLiveData(false)
+    var favorite : FavoriteEntity? = null
 
-    fun setFavorite(context: Context){
-        isLoading.value = true
+    @Inject
+    lateinit var repository: FavoriteRepository
 
-            try {
-                if(volEntity != null)
-                    repository?.delete(volEntity!!)
-                else {
-                    var vol = selectedVolume?.toVolumeEntity()
-                    vol?.let { repository?.insert(it) }
-                }
+    private val compositeDisposable by lazy { CompositeDisposable() }
 
-            } catch (e: Exception) {
-                // handler error
-            }
-            finally {
-                isLoading.value = false
-            }
+    init {
+        DaggerAppComponent.create().inject(this)
+        compositeDisposable.add(repository.fetchFavoritesFromDatabase())
+    }
 
-        //selectedVolume?.toVolumeEntity()?.let { FavoritesRepository.setFavorite(context, it) }
-
-        /*if(isFav == true){
-            FavoritesRepository.getAllVolumes(context)
-            getVolumeDb(context)
-            isLoading.value = false
-        }*/
-
+    override fun onCleared() {
+        super.onCleared()
+        compositeDisposable.clear()
     }
 
     fun getVolume(volumeId : String): LiveData<VolumeDto.Volume>? {
+        this.volumeId = volumeId
         return VolumesRepository.getVolumeDetailApiCall(volumeId)
+        isFavorite.value = false
+    }
+
+    fun setFavorite(){
+        try {
+            if(favorite != null && isFavorite.value == true) {
+                repository?.delete(favorite!!)
+                isFavorite.value = false
+                favorite = null
+            }
+            else {
+                var vol = selectedVolume?.toVolumeEntity()
+                vol?.let {
+                    repository?.insert(it)
+                    isFavorite.value = true
+                }
+            }
+
+        } catch (e: Exception) {
+            // handler error
+        }
+        finally {
+            repository.fetchFavoritesFromDatabase()
+        }
     }
 }

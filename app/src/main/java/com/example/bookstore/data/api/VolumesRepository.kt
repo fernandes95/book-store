@@ -1,21 +1,20 @@
-package com.example.bookstore.repository
+package com.example.bookstore.data.api
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
-import com.example.bookstore.dto.VolumeDto
-import com.example.bookstore.retrofit.RetrofitInstance
+import com.example.bookstore.data.api.dto.VolumeDto
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 object VolumesRepository {
 
-    fun getVolumesApiCall(startIndex : Int = 0): MutableLiveData<List<VolumeDto.Volume>> {
-        val volumesList = MutableLiveData<List<VolumeDto.Volume>>()
-        val call = RetrofitInstance.RetrofitClient.apiInterface.getVolumesQuery(
-                        mapOf("q" to "ios",
-                        "maxResults" to "40",
-                        "startIndex" to startIndex.toString()))
+    fun getVolumesApiCall(startIndex : Int = 0): MutableLiveData<ArrayList<VolumeDto.Volume>> {
+        val volumesList = MutableLiveData<ArrayList<VolumeDto.Volume>>()
+        val call = ApiService.getClient().getVolumesQuery(
+            mapOf("q" to "ios",
+                "maxResults" to "40",
+                "startIndex" to startIndex.toString()))
 
         call.enqueue(object: Callback<VolumeDto.Volumes> {
             override fun onFailure(call: Call<VolumeDto.Volumes>, t: Throwable) {
@@ -29,7 +28,7 @@ object VolumesRepository {
                 Log.v("DEBUG : ", response.body().toString())
 
                 val list = response.body()?.items
-                volumesList.value = list
+                volumesList.value = ArrayList(list)
             }
         })
 
@@ -38,7 +37,7 @@ object VolumesRepository {
 
     fun getVolumeDetailApiCall(volumeId: String): MutableLiveData<VolumeDto.Volume> {
         val volume = MutableLiveData<VolumeDto.Volume>()
-        val call = RetrofitInstance.RetrofitClient.apiInterface.getVolumeById(volumeId)
+        val call = ApiService.getClient().getVolumeById(volumeId)
 
         call.enqueue(object: Callback<VolumeDto.Volume> {
             override fun onFailure(call: Call<VolumeDto.Volume>, t: Throwable) {

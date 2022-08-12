@@ -1,28 +1,33 @@
 package com.example.bookstore.viewmodels
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import com.example.bookstore.dto.VolumeDto
-import com.example.bookstore.repository.VolumesRepository
-import com.example.bookstore.room.FavoritesRepository
-import com.example.bookstore.room.VolumeEntity
+import androidx.lifecycle.ViewModel
+import com.example.bookstore.data.api.dto.VolumeDto
+import com.example.bookstore.data.api.VolumesRepository
+import com.example.bookstore.data.room.FavoriteRepository
+import com.example.bookstore.di.DaggerAppComponent
+import io.reactivex.disposables.CompositeDisposable
+import javax.inject.Inject
 
-class VolumesViewModel(app: Application) : AndroidViewModel(app) {
-    private val repository = FavoritesRepository(app)
-    var favorites : LiveData<List<VolumeEntity>>? = null
+class VolumesViewModel : ViewModel() {
+
+    @Inject
+    lateinit var repository: FavoriteRepository
+
+    private val compositeDisposable by lazy { CompositeDisposable() }
 
     init {
-        favorites = repository.getAll()
+        DaggerAppComponent.create().inject(this)
+        compositeDisposable.add(repository.fetchFavoritesFromDatabase())
     }
 
-    fun getFavoriteUid(id: String): Boolean? {
-        val list = favorites?.value?.toList() ?: return false
-
-        return list?.first{item -> item.id == id} != null
+    override fun onCleared() {
+        super.onCleared()
+        compositeDisposable.clear()
     }
 
-    fun getListData(): LiveData<List<VolumeDto.Volume>>? {
+    fun getListData(): LiveData<ArrayList<VolumeDto.Volume>>? {
+        repository.fetchFavoritesFromDatabase()
         return VolumesRepository.getVolumesApiCall()
     }
 }

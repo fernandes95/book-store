@@ -7,7 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.bookstore.R
-import com.example.bookstore.dto.VolumeDto
+import com.example.bookstore.data.api.dto.VolumeDto
 
 class VolumeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val title: TextView = itemView.findViewById(R.id.volumeListItemTitleTv)

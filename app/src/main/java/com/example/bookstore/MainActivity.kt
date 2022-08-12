@@ -9,7 +9,6 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
 import com.example.bookstore.databinding.ActivityMainBinding
-import com.example.bookstore.room.FavoriteDatabase
 
 class MainActivity : AppCompatActivity() {
 

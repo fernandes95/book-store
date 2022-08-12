@@ -9,12 +9,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import com.bumptech.glide.Glide
 import com.example.bookstore.R
 import com.example.bookstore.databinding.FragmentVolumeDetailBinding
-import com.example.bookstore.dto.VolumeDto
+import com.example.bookstore.data.api.dto.VolumeDto
 import com.example.bookstore.ui.fragments.VolumesFragment.Companion.VOLUME_ID
 import com.example.bookstore.viewmodels.VolumeDetailViewModel
 
@@ -22,7 +22,8 @@ class VolumeDetailFragment : Fragment() {
 
     private var _binding: FragmentVolumeDetailBinding? = null
     private val binding get() = _binding!!
-    private var vm : VolumeDetailViewModel? = null
+
+    private val vm: VolumeDetailViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,14 +31,10 @@ class VolumeDetailFragment : Fragment() {
     ): View? {
 
         _binding = FragmentVolumeDetailBinding.inflate(inflater, container, false)
-        vm = ViewModelProvider(this)[VolumeDetailViewModel::class.java]
 
         updateUi()
+        observeLiveData()
 
-
-        vm?.isLoading?.observe(viewLifecycleOwner){
-            binding.volumeDetailPb.visibility = if(it) View.VISIBLE else View.GONE
-        }
         return binding.root
     }
 
@@ -46,28 +43,60 @@ class VolumeDetailFragment : Fragment() {
         _binding = null
     }
 
-    private fun favoriteOnclickListener() : View.OnClickListener {
-        return View.OnClickListener {
-            vm?.setFavorite(context!!)
+    private fun observeLiveData() {
+        observeInProgress()
+        observeIsError()
+        observeFavoriteList()
+    }
+
+    private fun observeInProgress() {
+        vm.repository.isInProgress.observe(viewLifecycleOwner) { isLoading ->
+            isLoading.let {
+//                binding.volumeDetailFavoriteIv.isEnabled = it
+//                binding.volumeDetailPb.visibility = if(it) View.VISIBLE else View.GONE
+            }
         }
     }
 
-    private fun setFavoriteImage(isFav : Boolean?){
-        if(isFav == null) return
-        var imageResource = if(isFav) R.drawable.ic_favorite else R.drawable.ic_favorite_border
+    private fun observeIsError() {//TODO
+        vm.repository.isError.observe(viewLifecycleOwner) { isError ->
+            isError.let {
+                if (it) {
+                } else {
+                }
+            }
+        }
+    }
 
-        binding.volumeDetailFavoriteIv.setImageDrawable(ContextCompat.getDrawable(context!!, imageResource))
+    private fun observeFavoriteList() {
+        vm.repository.data.observe(viewLifecycleOwner) { list ->
+            list.let {
+                if(!list.any()) return@let
+
+                val favItems = list.filter { item -> item.id == vm.volumeId }
+                vm.isFavorite.value = favItems.any()
+                vm.favorite = if(favItems.any()) favItems.first() else null
+            }
+        }
+    }
+
+    private fun favoriteOnclickListener() : View.OnClickListener {
+        return View.OnClickListener {
+            vm.setFavorite()
+        }
+    }
+
+    private fun setFavoriteImage(isFav : Boolean){
+        var imageResource = if(isFav) R.drawable.ic_favorite else R.drawable.ic_favorite_border
+        binding.volumeDetailFavoriteIv.setImageDrawable(ContextCompat.getDrawable(requireContext(), imageResource))
     }
 
     private fun updateUi(){
         binding.volumeDetailFavoriteIv.setOnClickListener(favoriteOnclickListener())
+
         val volumeId = arguments?.getString(VOLUME_ID).toString()
-        vm?.getVolume(volumeId)?.observe(viewLifecycleOwner) { volume ->
-            vm?.selectedVolume = volume
-            vm?.getVolumeDb(context!!)
-            vm?.isFavorite?.observe(viewLifecycleOwner){
-                setFavoriteImage(it)
-            }
+        vm.getVolume(volumeId)?.observe(viewLifecycleOwner) { volume ->
+            vm.selectedVolume = volume
 
             //TODO ADD ERROR DRAWABLE
             if(!volume?.volumeInfo?.imageLinks?.thumbnail.isNullOrEmpty()) {
@@ -79,6 +108,14 @@ class VolumeDetailFragment : Fragment() {
             setText(volume)
             binding.volumeDetailPb.visibility = View.GONE
             binding.volumeDetailContentCl.visibility = View.VISIBLE
+
+            vm.isFavorite.observe(viewLifecycleOwner){
+                setFavoriteImage(it)
+            }
+        }
+
+        vm.isLoading.observe(viewLifecycleOwner){
+            binding.volumeDetailPb.visibility = if(it) View.VISIBLE else View.GONE
         }
     }
 

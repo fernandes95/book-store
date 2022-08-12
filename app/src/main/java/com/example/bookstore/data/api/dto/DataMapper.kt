@@ -1,14 +1,14 @@
-package com.example.bookstore.room
+package com.example.bookstore.data.api.dto
 
-import com.example.bookstore.dto.VolumeDto
+import com.example.bookstore.data.room.FavoriteEntity
 
-fun VolumeDto.Volume.toVolumeEntity() = VolumeEntity(
+fun VolumeDto.Volume.toVolumeEntity() = FavoriteEntity(
     id = this.id,
     title = this.volumeInfo?.title!!,
     thumb = this.volumeInfo.imageLinks?.thumbnail!!
 )
 
-fun VolumeEntity.toVolume() = VolumeDto.Volume(
+fun FavoriteEntity.toVolume() = VolumeDto.Volume(
     id = this.id,
     kind = "",
     etag = "",
