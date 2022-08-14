@@ -27,9 +27,8 @@ class VolumesAdapter (private val items : ArrayList<VolumeDto.Volume>, private v
         fun onClick(volumeId: String) = clickListener(volumeId)
     }
 
-    fun setUpData(volumes: List<VolumeDto.Volume>) {
+    fun addData(volumes: ArrayList<VolumeDto.Volume>) {
         with(items){
-            clear()
             addAll(volumes)
             notifyDataSetChanged()
         }

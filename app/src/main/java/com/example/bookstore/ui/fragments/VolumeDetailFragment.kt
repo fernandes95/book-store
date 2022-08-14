@@ -14,7 +14,7 @@ import com.bumptech.glide.Glide
 import com.example.bookstore.R
 import com.example.bookstore.databinding.FragmentVolumeDetailBinding
 import com.example.bookstore.data.models.dto.VolumeDto
-import com.example.bookstore.ui.fragments.VolumesFragment.Companion.VOLUME_ID
+import com.example.bookstore.utils.BUNDLE_VOLUME_ID
 import com.example.bookstore.viewmodels.VolumeDetailViewModel
 
 class VolumeDetailFragment : Fragment() {
@@ -48,11 +48,10 @@ class VolumeDetailFragment : Fragment() {
         observeFavoriteList()
     }
 
-    private fun observeInProgress() {
+    private fun observeInProgress() {//TODO
         vm.repository.isInProgress.observe(viewLifecycleOwner) { isLoading ->
             isLoading.let {
-//                binding.volumeDetailFavoriteIv.isEnabled = it
-//                binding.volumeDetailPb.visibility = if(it) View.VISIBLE else View.GONE
+
             }
         }
     }
@@ -91,7 +90,7 @@ class VolumeDetailFragment : Fragment() {
     private fun updateUi(){
         binding.volumeDetailFavoriteIv.setOnClickListener(favoriteOnclickListener())
 
-        val volumeId = arguments?.getString(VOLUME_ID).toString()
+        val volumeId = arguments?.getString(BUNDLE_VOLUME_ID).toString()
         vm.getVolume(volumeId)?.observe(viewLifecycleOwner) { volume ->
             vm.selectedVolume = volume
 

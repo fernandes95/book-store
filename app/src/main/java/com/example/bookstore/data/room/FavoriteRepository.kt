@@ -26,12 +26,12 @@ class FavoriteRepository {
         DaggerAppComponent.create().inject(this)
     }
 
-    private val _volumesData by lazy { MutableLiveData<List<VolumeDto.Volume>>() }
-    val volumesData: LiveData<List<VolumeDto.Volume>>
+    private val _volumesData by lazy { MutableLiveData<ArrayList<VolumeDto.Volume>>() }
+    val volumesData: LiveData<ArrayList<VolumeDto.Volume>>
         get() = _volumesData
 
-    private val _favoritesData by lazy { MutableLiveData<List<FavoriteEntity>>() }
-    val favoriteData: LiveData<List<FavoriteEntity>>
+    private val _favoritesData by lazy { MutableLiveData<ArrayList<FavoriteEntity>>() }
+    val favoriteData: LiveData<ArrayList<FavoriteEntity>>
         get() = _favoritesData
 
     private val _isInProgress by lazy { MutableLiveData<Boolean>() }
@@ -119,10 +119,10 @@ class FavoriteRepository {
                     _isInProgress.postValue(true)
                     if (dataEntityList != null && dataEntityList.isNotEmpty()) {
                         _isError.postValue(false)
-                        _favoritesData.postValue(dataEntityList)
-                    } else {
-                        _favoritesData.postValue(emptyList())
-                    }
+                        _favoritesData.postValue(ArrayList(dataEntityList))
+                    } else
+                        _favoritesData.postValue(ArrayList())
+
                     _isInProgress.postValue(false)
 
                 },

@@ -9,19 +9,18 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.bookstore.R
-import com.example.bookstore.databinding.FragmentVolumesBinding
 import com.example.bookstore.data.api.dto.toVolume
 import com.example.bookstore.data.models.dto.VolumeDto
 import com.example.bookstore.data.room.FavoriteEntity
+import com.example.bookstore.databinding.FragmentVolumesBinding
 import com.example.bookstore.ui.adapters.VolumesAdapter
+import com.example.bookstore.utils.API_MAX_RESULTS
+import com.example.bookstore.utils.BUNDLE_VOLUME_ID
 import com.example.bookstore.viewmodels.VolumesViewModel
 
 class VolumesFragment : Fragment() {
-
-    companion object {
-        const val VOLUME_ID = "VOLUME_ID"
-    }
 
     private var _binding: FragmentVolumesBinding? = null
     private val binding get() = _binding!!
@@ -32,12 +31,16 @@ class VolumesFragment : Fragment() {
     private lateinit var layoutManager : LinearLayoutManager
     private var adapter : VolumesAdapter? = null
     private var favoritesAdapter : VolumesAdapter? = null
+    private var totalItemCount : Int = 0
+    private var lastVisibleItem : Int = 0
+    private var firstVisibleItem : Int = 0
+    private var isLoadingMore : Boolean = false
+    private var volumesLimit : Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentVolumesBinding.inflate(inflater, container, false)
 
         updateUi()
@@ -48,35 +51,39 @@ class VolumesFragment : Fragment() {
 
     private fun observeLiveData() {
         observeVolumesList()
-        observeInProgress()
-        observeIsError()
         observeFavoriteList()
-    }
-
-    private fun observeInProgress() {
-        vm.repository.isInProgress.observe(viewLifecycleOwner) { isLoading ->
-            isLoading.let {
-                //binding.volumesPb.visibility = if(it) View.VISIBLE else View.GONE
-            }
-        }
-    }
-
-    private fun observeIsError() {//TODO
-        vm.repository.isError.observe(viewLifecycleOwner) { isError ->
-            isError.let {
-
-            }
-        }
     }
 
     private fun observeVolumesList(){
         vm.repository.volumesData.observe(viewLifecycleOwner) { volumes ->
             volumes.let {
-                adapter = VolumesAdapter(ArrayList(volumes), clickListener())
-                binding.volumesRv.adapter = adapter
+
+                if(adapter == null)
+                    adapter = VolumesAdapter(ArrayList(volumes), clickListener())
+                else if(isLoadingMore)
+                    adapter!!.addData(volumes)
+
+                if(binding.volumesRv.adapter == null) {
+                    binding.volumesRv.adapter = adapter
+
+                    if(firstVisibleItem != 0)
+                        binding.volumesRv.layoutManager?.scrollToPosition(firstVisibleItem)
+                }
+
                 binding.volumesPb.visibility = View.GONE
-                binding.volumesFilterCl.setOnClickListener(filterOnclickListener())
-                isFilter = false
+                binding.volumesBottomPb.visibility = View.GONE
+                isLoadingMore = false
+                volumesLimit = volumes.count() < API_MAX_RESULTS.toInt()
+            }
+        }
+    }
+
+    private fun observeFavoriteList() {
+        vm.repository.favoriteData.observe(viewLifecycleOwner) { favorites ->
+            favorites.let {
+                binding.volumesFilterCl.visibility = if(it != null && it.isNotEmpty()) View.VISIBLE else View.GONE
+                val list = convertEntityList(favorites)
+                favoritesAdapter = VolumesAdapter(list, clickListener())
             }
         }
     }
@@ -92,30 +99,40 @@ class VolumesFragment : Fragment() {
     }
 
     private fun updateUi(){
+        setFilterUi()
         layoutManager = LinearLayoutManager(context)
         binding.volumesRv.layoutManager = layoutManager
+        recyclerScrollListener()
+        binding.volumesFilterCl.setOnClickListener(filterOnclickListener())
+    }
+
+    private fun recyclerScrollListener() {
+        binding.volumesRv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(
+                recyclerView: RecyclerView,
+                dx: Int, dy: Int
+            ) {
+                if(isFilter || volumesLimit) return
+
+                totalItemCount = binding.volumesRv.layoutManager?.itemCount!!
+                lastVisibleItem = layoutManager.findLastVisibleItemPosition().plus(1)
+                firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
+
+                if(lastVisibleItem == totalItemCount && !isLoadingMore){
+                    isLoadingMore = true
+                    binding.volumesBottomPb.visibility = View.VISIBLE
+                    vm.getMoreVolumes(totalItemCount)
+                }
+            }
+        })
     }
 
     private fun clickListener() : VolumesAdapter.OnClickListener {
         return VolumesAdapter.OnClickListener { id ->
             val bundle = Bundle()
-            bundle.putString(VOLUME_ID, id)
+            bundle.putString(BUNDLE_VOLUME_ID, id)
 
             findNavController().navigate(R.id.action_VolumesFragment_to_VolumeDetailFragment, bundle)
-        }
-    }
-
-    private fun observeFavoriteList() {
-        vm.repository.favoriteData.observe(viewLifecycleOwner) { favorites ->
-            favorites.let {
-                binding.volumesFilterCl.visibility = if(it != null && it.isNotEmpty()) View.VISIBLE else View.GONE
-                val list = convertEntityList(favorites)
-
-                if(favoritesAdapter == null)
-                    favoritesAdapter = VolumesAdapter(list, clickListener())
-                else
-                    favoritesAdapter!!.setUpData(list)
-            }
         }
     }
 
@@ -129,10 +146,19 @@ class VolumesFragment : Fragment() {
     private fun filterOnclickListener() : View.OnClickListener {
         return View.OnClickListener {
             isFilter = !isFilter
-            val imageResource = if(isFilter) R.drawable.ic_filter else R.drawable.ic_filter_outlined
-
-            binding.volumesFilterIv.setImageDrawable(ContextCompat.getDrawable(requireContext(), imageResource))
-            binding.volumesRv.adapter = if(isFilter) favoritesAdapter else adapter
+            setFilterUi()
         }
+    }
+
+    private fun setFilterUi(){
+        val imageResource = if(isFilter) R.drawable.ic_filter else R.drawable.ic_filter_outlined
+        binding.volumesFilterIv.setImageDrawable(ContextCompat.getDrawable(requireContext(), imageResource))
+
+        if(isFilter && favoritesAdapter == null || !isFilter && adapter == null) return
+
+        binding.volumesRv.adapter = if(isFilter) favoritesAdapter else adapter
+
+        if(!isFilter && firstVisibleItem != 0)
+            binding.volumesRv.layoutManager?.scrollToPosition(firstVisibleItem)
     }
 }

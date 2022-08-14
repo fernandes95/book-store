@@ -27,4 +27,9 @@ class VolumesViewModel : ViewModel() {
     fun getFavData() {
         repository.fetchFavoritesFromDatabase()
     }
+
+    //adding 1 to the startIndex so that I don't get the previous last item duplicated
+    fun getMoreVolumes(startIndex : Int){
+        repository.fetchVolumesFromApi(startIndex = startIndex.plus(1))
+    }
 }
