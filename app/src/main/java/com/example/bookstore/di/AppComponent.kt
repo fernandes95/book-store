@@ -9,7 +9,7 @@ import javax.inject.Singleton
 @Singleton
 @Component(modules = [AppModule::class])
 interface AppComponent {
-    fun inject(trendingRepository: FavoriteRepository)
+    fun inject(favoriteRepository: FavoriteRepository)
 
     fun inject(viewModel: VolumesViewModel)
 

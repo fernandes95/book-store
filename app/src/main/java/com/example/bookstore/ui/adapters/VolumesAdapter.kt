@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bookstore.R
-import com.example.bookstore.data.api.dto.VolumeDto
+import com.example.bookstore.data.models.dto.VolumeDto
 import com.example.bookstore.databinding.VolumeListItemBinding
 
 class VolumesAdapter (private val items : ArrayList<VolumeDto.Volume>, private val onClickListener: OnClickListener) :

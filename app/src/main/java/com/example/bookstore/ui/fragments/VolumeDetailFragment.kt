@@ -13,7 +13,7 @@ import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
 import com.example.bookstore.R
 import com.example.bookstore.databinding.FragmentVolumeDetailBinding
-import com.example.bookstore.data.api.dto.VolumeDto
+import com.example.bookstore.data.models.dto.VolumeDto
 import com.example.bookstore.ui.fragments.VolumesFragment.Companion.VOLUME_ID
 import com.example.bookstore.viewmodels.VolumeDetailViewModel
 
@@ -66,7 +66,7 @@ class VolumeDetailFragment : Fragment() {
     }
 
     private fun observeFavoriteList() {
-        vm.repository.data.observe(viewLifecycleOwner) { list ->
+        vm.repository.favoriteData.observe(viewLifecycleOwner) { list ->
             list.let {
                 if(!list.any()) return@let
 

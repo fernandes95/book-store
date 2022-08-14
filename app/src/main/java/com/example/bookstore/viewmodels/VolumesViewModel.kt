@@ -1,9 +1,6 @@
 package com.example.bookstore.viewmodels
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import com.example.bookstore.data.api.dto.VolumeDto
-import com.example.bookstore.data.api.VolumesRepository
 import com.example.bookstore.data.room.FavoriteRepository
 import com.example.bookstore.di.DaggerAppComponent
 import io.reactivex.disposables.CompositeDisposable
@@ -19,6 +16,7 @@ class VolumesViewModel : ViewModel() {
     init {
         DaggerAppComponent.create().inject(this)
         compositeDisposable.add(repository.fetchFavoritesFromDatabase())
+        repository.fetchVolumesFromApi()
     }
 
     override fun onCleared() {
@@ -26,8 +24,7 @@ class VolumesViewModel : ViewModel() {
         compositeDisposable.clear()
     }
 
-    fun getListData(): LiveData<ArrayList<VolumeDto.Volume>> {
+    fun getFavData() {
         repository.fetchFavoritesFromDatabase()
-        return VolumesRepository.getVolumesApiCall()
     }
 }

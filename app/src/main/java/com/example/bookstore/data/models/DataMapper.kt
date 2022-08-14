@@ -1,5 +1,6 @@
 package com.example.bookstore.data.api.dto
 
+import com.example.bookstore.data.models.dto.VolumeDto
 import com.example.bookstore.data.room.FavoriteEntity
 
 fun VolumeDto.Volume.toVolumeEntity() = FavoriteEntity(

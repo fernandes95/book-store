@@ -2,7 +2,7 @@ package com.example.bookstore.data.api
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
-import com.example.bookstore.data.api.dto.VolumeDto
+import com.example.bookstore.data.models.dto.VolumeDto
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

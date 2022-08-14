@@ -1,9 +1,8 @@
 package com.example.bookstore.viewmodels
 
 import androidx.lifecycle.*
-import com.example.bookstore.data.api.dto.VolumeDto
+import com.example.bookstore.data.models.dto.VolumeDto
 import com.example.bookstore.data.api.dto.toVolumeEntity
-import com.example.bookstore.data.api.VolumesRepository
 import com.example.bookstore.data.room.FavoriteEntity
 import com.example.bookstore.data.room.FavoriteRepository
 import com.example.bookstore.di.DaggerAppComponent
@@ -35,7 +34,7 @@ class VolumeDetailViewModel : ViewModel() {
 
     fun getVolume(volumeId : String): LiveData<VolumeDto.Volume>? {
         this.volumeId = volumeId
-        return VolumesRepository.getVolumeDetailApiCall(volumeId)
+        return repository.fetchVolumeFromApi(volumeId)
         isFavorite.value = false
     }
 

@@ -11,8 +11,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.bookstore.R
 import com.example.bookstore.databinding.FragmentVolumesBinding
-import com.example.bookstore.data.api.dto.VolumeDto
 import com.example.bookstore.data.api.dto.toVolume
+import com.example.bookstore.data.models.dto.VolumeDto
 import com.example.bookstore.data.room.FavoriteEntity
 import com.example.bookstore.ui.adapters.VolumesAdapter
 import com.example.bookstore.viewmodels.VolumesViewModel
@@ -40,14 +40,14 @@ class VolumesFragment : Fragment() {
 
         _binding = FragmentVolumesBinding.inflate(inflater, container, false)
 
-        observeLiveData()
         updateUi()
-        populateList()
+        observeLiveData()
 
         return binding.root
     }
 
     private fun observeLiveData() {
+        observeVolumesList()
         observeInProgress()
         observeIsError()
         observeFavoriteList()
@@ -69,21 +69,26 @@ class VolumesFragment : Fragment() {
         }
     }
 
-    private fun populateList(){
-        vm.getListData().observe(viewLifecycleOwner) { list ->
-            layoutManager = LinearLayoutManager(context)
-            binding.volumesRv.layoutManager = layoutManager
-            adapter = VolumesAdapter(list, clickListener())
-            binding.volumesRv.adapter = adapter
-            binding.volumesPb.visibility = View.GONE
-            binding.volumesFilterCl.setOnClickListener(filterOnclickListener())
-            isFilter = false
+    private fun observeVolumesList(){
+        vm.repository.volumesData.observe(viewLifecycleOwner) { volumes ->
+            volumes.let {
+                adapter = VolumesAdapter(ArrayList(volumes), clickListener())
+                binding.volumesRv.adapter = adapter
+                binding.volumesPb.visibility = View.GONE
+                binding.volumesFilterCl.setOnClickListener(filterOnclickListener())
+                isFilter = false
+            }
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        vm.getFavData()
     }
 
     private fun updateUi(){
@@ -101,7 +106,7 @@ class VolumesFragment : Fragment() {
     }
 
     private fun observeFavoriteList() {
-        vm.repository.data.observe(viewLifecycleOwner) { favorites ->
+        vm.repository.favoriteData.observe(viewLifecycleOwner) { favorites ->
             favorites.let {
                 binding.volumesFilterCl.visibility = if(it != null && it.isNotEmpty()) View.VISIBLE else View.GONE
                 val list = convertEntityList(favorites)
