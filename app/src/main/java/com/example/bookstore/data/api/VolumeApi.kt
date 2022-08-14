@@ -1,6 +1,6 @@
-package com.example.bookstore.interfaces
+package com.example.bookstore.data.api
 
-import com.example.bookstore.dto.VolumeDto
+import com.example.bookstore.data.api.dto.VolumeDto
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path

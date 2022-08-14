@@ -2,11 +2,14 @@
     <string name="app_name">BookStore</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
+    <string name="volume_detail_fragment_label">Volume Detail Fragment</string>
+    <string name="volumes_fragment_label">Volumes Fragment</string>
 
-    <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <!-- Volumes -->
+    <string name="volumes_filter">Filter by Favorites</string>
+
+    <!-- Volume Detail -->
+    <string name="volume_detail_title">Title</string>
+    <string name="volume_detail_description">Description</string>
+    <string name="volume_detail_buy">BUY</string>
 </resources>

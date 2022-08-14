@@ -3,26 +3,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FirstFragment">
+    app:startDestination="@id/VolumesFragment">
 
     <fragment
-        android:id="@+id/FirstFragment"
+        android:id="@+id/VolumesFragment"
         android:name="com.example.bookstore.ui.fragments.VolumesFragment"
-        android:label="@string/first_fragment_label"
+        android:label="@string/volumes_fragment_label"
         tools:layout="@layout/fragment_volumes">
 
         <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
+            android:id="@+id/action_VolumesFragment_to_VolumeDetailFragment"
+            app:destination="@id/VolumeDetailFragment"
+            app:launchSingleTop="false"
+            app:popUpToInclusive="false" />
     </fragment>
     <fragment
-        android:id="@+id/SecondFragment"
+        android:id="@+id/VolumeDetailFragment"
         android:name="com.example.bookstore.ui.fragments.VolumeDetailFragment"
-        android:label="@string/second_fragment_label"
+        android:label="@string/volume_detail_fragment_label"
         tools:layout="@layout/fragment_volume_detail">
 
         <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
+            android:id="@+id/action_VolumeDetailFragment_to_VolumesFragment"
+            app:destination="@id/VolumesFragment" />
     </fragment>
 </navigation>
