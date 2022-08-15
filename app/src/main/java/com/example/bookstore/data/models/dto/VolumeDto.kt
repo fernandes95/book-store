@@ -1,4 +1,4 @@
-package com.example.bookstore.data.api.dto
+package com.example.bookstore.data.models.dto
 
 class VolumeDto {//TODO REVISE GOOGLE MODEL DOCUMENTATION TO CHECK WHICH FIELDS ARE EXPECTED TO BE NULL
 
