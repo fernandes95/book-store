@@ -11,7 +11,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bookstore.R
-import com.example.bookstore.data.api.dto.toVolume
+import com.example.bookstore.data.models.toVolume
 import com.example.bookstore.data.models.dto.VolumeDto
 import com.example.bookstore.data.room.FavoriteEntity
 import com.example.bookstore.databinding.FragmentVolumesBinding
@@ -21,21 +21,22 @@ import com.example.bookstore.utils.BUNDLE_VOLUME_ID
 import com.example.bookstore.viewmodels.VolumesViewModel
 
 class VolumesFragment : Fragment() {
+    private val vm: VolumesViewModel by viewModels()
 
     private var _binding: FragmentVolumesBinding? = null
     private val binding get() = _binding!!
 
-    private val vm: VolumesViewModel by viewModels()
-    private var isFilter = false
 
     private lateinit var layoutManager : LinearLayoutManager
     private var adapter : VolumesAdapter? = null
     private var favoritesAdapter : VolumesAdapter? = null
+
     private var totalItemCount : Int = 0
     private var lastVisibleItem : Int = 0
     private var firstVisibleItem : Int = 0
     private var isLoadingMore : Boolean = false
     private var volumesLimit : Boolean = false
+    private var isFilter = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -145,6 +146,8 @@ class VolumesFragment : Fragment() {
 
     private fun filterOnclickListener() : View.OnClickListener {
         return View.OnClickListener {
+            if(binding.volumesPb.visibility == View.VISIBLE)return@OnClickListener
+
             isFilter = !isFilter
             setFilterUi()
         }

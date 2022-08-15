@@ -1,7 +1,7 @@
 package com.example.bookstore.viewmodels
 
 import androidx.lifecycle.ViewModel
-import com.example.bookstore.data.room.FavoriteRepository
+import com.example.bookstore.data.repositories.VolumesRepository
 import com.example.bookstore.di.DaggerAppComponent
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
@@ -9,7 +9,7 @@ import javax.inject.Inject
 class VolumesViewModel : ViewModel() {
 
     @Inject
-    lateinit var repository: FavoriteRepository
+    lateinit var repository: VolumesRepository
 
     private val compositeDisposable by lazy { CompositeDisposable() }
 

@@ -1,4 +1,4 @@
-package com.example.bookstore.data.room
+package com.example.bookstore.data.repositories
 
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.bookstore.VolumesApplication
 import com.example.bookstore.data.api.VolumeApi
 import com.example.bookstore.data.models.dto.VolumeDto
+import com.example.bookstore.data.room.FavoriteEntity
 import com.example.bookstore.di.DaggerAppComponent
 import com.example.bookstore.utils.API_MAX_RESULTS
 import com.example.bookstore.utils.subscribeOnBackground
@@ -17,7 +18,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import javax.inject.Inject
 
-class FavoriteRepository {
+class VolumesRepository {
 
     @Inject
     lateinit var volumeApi: VolumeApi
@@ -41,7 +42,6 @@ class FavoriteRepository {
     private val _isError by lazy { MutableLiveData<Boolean>() }
     val isError: LiveData<Boolean>
         get() = _isError
-
 
     fun insert(volume: FavoriteEntity) {
         subscribeOnBackground {
@@ -108,7 +108,6 @@ class FavoriteRepository {
         return volume
     }
 
-
     private fun getAllFavorites(): Disposable {
         return VolumesApplication.database.favDao()
             .getAll()
@@ -136,6 +135,6 @@ class FavoriteRepository {
     }
 
     fun fetchFavoritesFromDatabase(): Disposable = getAllFavorites()
-    fun fetchVolumesFromApi(query : String = "ios", startIndex : Int = 0) = getVolumes(query, startIndex)
+    fun fetchVolumesFromApi(query : String = "android", startIndex : Int = 0) = getVolumes(query, startIndex)
     fun fetchVolumeFromApi(volumeId : String) = getVolume(volumeId)
 }
