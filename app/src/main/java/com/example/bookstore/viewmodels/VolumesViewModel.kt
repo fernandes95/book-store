@@ -1,10 +1,7 @@
 package com.example.bookstore.viewmodels
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import com.example.bookstore.data.api.dto.VolumeDto
-import com.example.bookstore.data.api.VolumesRepository
-import com.example.bookstore.data.room.FavoriteRepository
+import com.example.bookstore.data.repositories.VolumesRepository
 import com.example.bookstore.di.DaggerAppComponent
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
@@ -12,13 +9,14 @@ import javax.inject.Inject
 class VolumesViewModel : ViewModel() {
 
     @Inject
-    lateinit var repository: FavoriteRepository
+    lateinit var repository: VolumesRepository
 
     private val compositeDisposable by lazy { CompositeDisposable() }
 
     init {
         DaggerAppComponent.create().inject(this)
         compositeDisposable.add(repository.fetchFavoritesFromDatabase())
+        repository.fetchVolumesFromApi()
     }
 
     override fun onCleared() {
@@ -26,8 +24,12 @@ class VolumesViewModel : ViewModel() {
         compositeDisposable.clear()
     }
 
-    fun getListData(): LiveData<ArrayList<VolumeDto.Volume>> {
+    fun getFavData() {
         repository.fetchFavoritesFromDatabase()
-        return VolumesRepository.getVolumesApiCall()
+    }
+
+    //adding 1 to the startIndex so that I don't get the previous last item duplicated
+    fun getMoreVolumes(startIndex : Int){
+        repository.fetchVolumesFromApi(startIndex = startIndex.plus(1))
     }
 }

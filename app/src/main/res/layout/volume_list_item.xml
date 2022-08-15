@@ -6,7 +6,7 @@
     <data>
         <variable
             name="volume"
-            type="com.example.bookstore.data.api.dto.VolumeDto.Volume" />
+            type="com.example.bookstore.data.models.dto.VolumeDto.Volume" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

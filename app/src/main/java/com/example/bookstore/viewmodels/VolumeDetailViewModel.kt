@@ -1,11 +1,10 @@
 package com.example.bookstore.viewmodels
 
 import androidx.lifecycle.*
-import com.example.bookstore.data.api.dto.VolumeDto
-import com.example.bookstore.data.api.dto.toVolumeEntity
-import com.example.bookstore.data.api.VolumesRepository
+import com.example.bookstore.data.models.dto.VolumeDto
+import com.example.bookstore.data.models.toVolumeEntity
 import com.example.bookstore.data.room.FavoriteEntity
-import com.example.bookstore.data.room.FavoriteRepository
+import com.example.bookstore.data.repositories.VolumesRepository
 import com.example.bookstore.di.DaggerAppComponent
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
@@ -19,7 +18,7 @@ class VolumeDetailViewModel : ViewModel() {
     var favorite : FavoriteEntity? = null
 
     @Inject
-    lateinit var repository: FavoriteRepository
+    lateinit var repository: VolumesRepository
 
     private val compositeDisposable by lazy { CompositeDisposable() }
 
@@ -35,7 +34,7 @@ class VolumeDetailViewModel : ViewModel() {
 
     fun getVolume(volumeId : String): LiveData<VolumeDto.Volume>? {
         this.volumeId = volumeId
-        return VolumesRepository.getVolumeDetailApiCall(volumeId)
+        return repository.fetchVolumeFromApi(volumeId)
         isFavorite.value = false
     }
 
@@ -55,7 +54,7 @@ class VolumeDetailViewModel : ViewModel() {
             }
 
         } catch (e: Exception) {
-            // handler error
+            //TODO
         }
         finally {
             repository.fetchFavoritesFromDatabase()
