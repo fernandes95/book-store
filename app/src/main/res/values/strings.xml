@@ -1,11 +1,14 @@
 <resources>
     <string name="app_name">BookStore</string>
+    <string name="toolbar_menu_search">Search</string>
 
     <!-- Strings used for fragments for navigation -->
     <string name="volume_detail_fragment_label">Volume Detail Fragment</string>
     <string name="volumes_fragment_label">Volumes Fragment</string>
 
     <!-- Volumes -->
+    <string name="volumes_search">Search</string>
+    <string name="volumes_search_title">Search for a Topic</string>
     <string name="volumes_filter">Filter by Favorites</string>
 
     <!-- Volume Detail -->

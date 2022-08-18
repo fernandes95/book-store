@@ -1,9 +1,12 @@
 package com.example.bookstore.ui.fragments
 
+import android.app.SearchManager
+import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.activity.addCallback
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -18,6 +21,7 @@ import com.example.bookstore.databinding.FragmentVolumesBinding
 import com.example.bookstore.ui.adapters.VolumesAdapter
 import com.example.bookstore.utils.API_MAX_RESULTS
 import com.example.bookstore.utils.BUNDLE_VOLUME_ID
+import com.example.bookstore.utils.BUNDLE_VOLUME_TITLE
 import com.example.bookstore.viewmodels.VolumesViewModel
 
 class VolumesFragment : Fragment() {
@@ -26,7 +30,7 @@ class VolumesFragment : Fragment() {
     private var _binding: FragmentVolumesBinding? = null
     private val binding get() = _binding!!
 
-
+    private lateinit var searchView : SearchView
     private lateinit var layoutManager : LinearLayoutManager
     private var adapter : VolumesAdapter? = null
     private var favoritesAdapter : VolumesAdapter? = null
@@ -37,6 +41,7 @@ class VolumesFragment : Fragment() {
     private var isLoadingMore : Boolean = false
     private var volumesLimit : Boolean = false
     private var isFilter = false
+    private var isSearch = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,10 +49,67 @@ class VolumesFragment : Fragment() {
     ): View {
         _binding = FragmentVolumesBinding.inflate(inflater, container, false)
 
+        setUpToolbar()
         updateUi()
         observeLiveData()
 
         return binding.root
+    }
+
+    private fun setUpToolbar(){
+        (activity  as AppCompatActivity).setSupportActionBar(binding.volumesTb)
+        requireActivity()
+            .onBackPressedDispatcher
+            .addCallback(viewLifecycleOwner) {
+                if (!searchView.isIconified)
+                    searchView.onActionViewCollapsed()
+                else
+                    requireActivity().onBackPressed()
+            }
+    }
+
+    private fun setSearchToolbar(menu: Menu){
+        val searchItem: MenuItem = menu.findItem(R.id.action_search)
+        searchView = searchItem.actionView as SearchView
+
+        searchView.queryHint = this.getString(R.string.volumes_search)
+        searchView.setBackgroundColor(ContextCompat.getColor(requireContext(),android.R.color.transparent))
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                binding.volumesRv.visibility = View.INVISIBLE
+                binding.volumesPb.visibility = View.VISIBLE
+                binding.volumesEmptyCl.visibility = View.GONE
+
+                isSearch = true
+                vm.searchVolumes(query!!)
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return false
+            }
+        })
+
+        val searchManager = activity?.getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(activity?.componentName))
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_search, menu)
+        setSearchToolbar(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_search -> true
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     private fun observeLiveData() {
@@ -59,8 +121,10 @@ class VolumesFragment : Fragment() {
         vm.repository.volumesData.observe(viewLifecycleOwner) { volumes ->
             volumes.let {
 
-                if(adapter == null)
+                if(adapter == null || isSearch) {
                     adapter = VolumesAdapter(ArrayList(volumes), clickListener())
+                    binding.volumesRv.adapter = adapter
+                }
                 else if(isLoadingMore)
                     adapter!!.addData(volumes)
 
@@ -71,9 +135,12 @@ class VolumesFragment : Fragment() {
                         binding.volumesRv.layoutManager?.scrollToPosition(firstVisibleItem)
                 }
 
+                binding.volumesEmptyCl.visibility = View.GONE
+                binding.volumesRv.visibility = View.VISIBLE
                 binding.volumesPb.visibility = View.GONE
                 binding.volumesBottomPb.visibility = View.GONE
                 isLoadingMore = false
+                isSearch = false
                 volumesLimit = volumes.count() < API_MAX_RESULTS.toInt()
             }
         }
@@ -129,9 +196,10 @@ class VolumesFragment : Fragment() {
     }
 
     private fun clickListener() : VolumesAdapter.OnClickListener {
-        return VolumesAdapter.OnClickListener { id ->
+        return VolumesAdapter.OnClickListener { volume ->
             val bundle = Bundle()
-            bundle.putString(BUNDLE_VOLUME_ID, id)
+            bundle.putString(BUNDLE_VOLUME_ID, volume.id)
+            bundle.putString(BUNDLE_VOLUME_TITLE, volume.volumeInfo?.title)
 
             findNavController().navigate(R.id.action_VolumesFragment_to_VolumeDetailFragment, bundle)
         }

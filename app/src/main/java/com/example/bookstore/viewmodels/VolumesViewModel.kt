@@ -8,6 +8,8 @@ import javax.inject.Inject
 
 class VolumesViewModel : ViewModel() {
 
+    lateinit var searchQuery : String
+
     @Inject
     lateinit var repository: VolumesRepository
 
@@ -16,7 +18,7 @@ class VolumesViewModel : ViewModel() {
     init {
         DaggerAppComponent.create().inject(this)
         compositeDisposable.add(repository.fetchFavoritesFromDatabase())
-        repository.fetchVolumesFromApi()
+        //repository.fetchVolumesFromApi()
     }
 
     override fun onCleared() {
@@ -30,6 +32,11 @@ class VolumesViewModel : ViewModel() {
 
     //adding 1 to the startIndex so that I don't get the previous last item duplicated
     fun getMoreVolumes(startIndex : Int){
-        repository.fetchVolumesFromApi(startIndex = startIndex.plus(1))
+        repository.fetchVolumesFromApi(query = searchQuery, startIndex = startIndex.plus(1))
+    }
+
+    fun searchVolumes(query: String){
+        searchQuery = query
+        repository.fetchVolumesFromApi(query = query)
     }
 }

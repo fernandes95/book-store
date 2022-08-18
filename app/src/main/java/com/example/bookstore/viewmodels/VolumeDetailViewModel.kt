@@ -41,14 +41,14 @@ class VolumeDetailViewModel : ViewModel() {
     fun setFavorite(){
         try {
             if(favorite != null && isFavorite.value == true) {
-                repository?.delete(favorite!!)
+                repository.delete(favorite!!)
                 isFavorite.value = false
                 favorite = null
             }
             else {
                 var vol = selectedVolume?.toVolumeEntity()
                 vol?.let {
-                    repository?.insert(it)
+                    repository.insert(it)
                     isFavorite.value = true
                 }
             }

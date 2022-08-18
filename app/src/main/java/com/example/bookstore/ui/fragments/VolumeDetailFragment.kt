@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
@@ -15,6 +16,7 @@ import com.example.bookstore.R
 import com.example.bookstore.databinding.FragmentVolumeDetailBinding
 import com.example.bookstore.data.models.dto.VolumeDto
 import com.example.bookstore.utils.BUNDLE_VOLUME_ID
+import com.example.bookstore.utils.BUNDLE_VOLUME_TITLE
 import com.example.bookstore.viewmodels.VolumeDetailViewModel
 
 class VolumeDetailFragment : Fragment() {
@@ -30,10 +32,20 @@ class VolumeDetailFragment : Fragment() {
 
         _binding = FragmentVolumeDetailBinding.inflate(inflater, container, false)
 
+        setUpToolbar()
         updateUi()
         observeLiveData()
 
         return binding.root
+    }
+
+    private fun setUpToolbar(){
+        val volumeTitle = arguments?.getString(BUNDLE_VOLUME_TITLE).toString()
+
+        val activity = (activity  as AppCompatActivity)
+        activity.setSupportActionBar(binding.volumesTb)
+        activity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        activity.supportActionBar?.title = volumeTitle
     }
 
     override fun onDestroyView() {
@@ -125,7 +137,7 @@ class VolumeDetailFragment : Fragment() {
         val authorsSize = volume.volumeInfo?.authors?.size
         if(authorsSize != null) {
             binding.volumeDetailAuthorTitleTv.text =
-                if (authorsSize!! > 1)
+                if (authorsSize > 1)
                     "Authors"
                 else
                     "Author"

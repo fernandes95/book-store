@@ -61,7 +61,7 @@ class VolumesRepository {
                 "maxResults" to API_MAX_RESULTS,
                 "startIndex" to startIndex.toString()))
 
-        call?.enqueue(object: Callback<VolumeDto.Volumes> {
+        call.enqueue(object: Callback<VolumeDto.Volumes> {
             override fun onFailure(call: Call<VolumeDto.Volumes>, t: Throwable) {
                 Log.v("DEBUG : ", t.message.toString())
                 _isError.postValue(true)
@@ -135,6 +135,6 @@ class VolumesRepository {
     }
 
     fun fetchFavoritesFromDatabase(): Disposable = getAllFavorites()
-    fun fetchVolumesFromApi(query : String = "android", startIndex : Int = 0) = getVolumes(query, startIndex)
+    fun fetchVolumesFromApi(query : String, startIndex : Int = 0) = getVolumes(query, startIndex)
     fun fetchVolumeFromApi(volumeId : String) = getVolume(volumeId)
 }
