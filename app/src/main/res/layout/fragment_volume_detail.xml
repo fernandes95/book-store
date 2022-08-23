@@ -19,7 +19,18 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/Theme.BookStore.PopupOverlay" />
+            app:popupTheme="@style/Theme.BookStore.PopupOverlay" >
+            <ImageView
+                android:id="@+id/volumeDetailFavoriteIv"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginRight="15dp"
+                android:layout_gravity="end"
+                android:src="@drawable/ic_favorite_border"
+                app:tint="@color/white"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+        </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
     <ScrollView
         android:id="@+id/volumeDetailSv"
@@ -41,13 +52,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:context=".ui.fragments.VolumeDetailFragment">
-            <ImageView
-                android:id="@+id/volumeDetailFavoriteIv"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/ic_favorite_border"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
             <ImageView
                 android:id="@+id/volumeDetailThumbIv"
                 android:layout_width="150dp"
