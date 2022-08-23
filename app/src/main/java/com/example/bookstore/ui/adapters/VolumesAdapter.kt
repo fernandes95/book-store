@@ -20,11 +20,11 @@ class VolumesAdapter (private val items : ArrayList<VolumeDto.Volume>, private v
     override fun onBindViewHolder(holder: VolumeViewHolder, position: Int) {
         val item = items[position]
         holder.itemBinding.volume = item
-        holder.itemView.setOnClickListener { onClickListener.onClick(item.id)}
+        holder.itemView.setOnClickListener { onClickListener.onClick(item)}
     }
 
-    class OnClickListener(val clickListener: (volumeId: String) -> Unit) {
-        fun onClick(volumeId: String) = clickListener(volumeId)
+    class OnClickListener(val clickListener: (volume: VolumeDto.Volume) -> Unit) {
+        fun onClick(volume: VolumeDto.Volume) = clickListener(volume)
     }
 
     fun addData(volumes: ArrayList<VolumeDto.Volume>) {
