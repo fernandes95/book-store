@@ -46,12 +46,14 @@ class VolumesRepository {
     fun insert(volume: FavoriteEntity) {
         subscribeOnBackground {
             VolumesApplication.database.favDao().insert(volume)
+            Log.v("DEBUG : ", "${volume.title}+ was added to db.")
         }
     }
 
     fun delete(favorite: FavoriteEntity) {
         subscribeOnBackground {
             VolumesApplication.database.favDao().delete(favorite)
+            Log.v("DEBUG : ", "${favorite.title}+ was removed from db.")
         }
     }
 

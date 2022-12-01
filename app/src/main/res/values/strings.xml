@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">BookStore</string>
 
+    <!--  Navigation  -->
+    <string name="nav_home">Home</string>
+    <string name="nav_fav">Favorites</string>
+    <string name="nav_other">Other</string>
+
     <!-- Strings used for fragments for navigation -->
     <string name="volume_detail_fragment_label">Volume Detail Fragment</string>
     <string name="volumes_fragment_label">Volumes Fragment</string>

@@ -34,8 +34,8 @@ class VolumeDetailViewModel : ViewModel() {
 
     fun getVolume(volumeId : String): LiveData<VolumeDto.Volume>? {
         this.volumeId = volumeId
-        return repository.fetchVolumeFromApi(volumeId)
         isFavorite.value = false
+        return repository.fetchVolumeFromApi(volumeId)
     }
 
     fun setFavorite(){
