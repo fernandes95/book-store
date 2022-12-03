@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
+import com.example.bookstore.MainActivity
 import com.example.bookstore.R
 import com.example.bookstore.databinding.FragmentVolumeDetailBinding
 import com.example.bookstore.data.models.dto.VolumeDto
@@ -87,6 +88,8 @@ class VolumeDetailFragment : Fragment() {
     }
 
     private fun updateUi(){
+        (activity as MainActivity).showNavBar(false)
+
         binding.volumeDetailFavoriteIv.setOnClickListener(favoriteOnclickListener())
 
         val volumeId = arguments?.getString(BUNDLE_VOLUME_ID).toString()

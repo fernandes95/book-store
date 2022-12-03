@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.bookstore.MainActivity
 import com.example.bookstore.R
 import com.example.bookstore.databinding.FragmentVolumesBinding
 import com.example.bookstore.ui.adapters.VolumesAdapter
@@ -81,6 +82,7 @@ class VolumesFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         vm.getFavData()
+        (activity as MainActivity).showNavBar(true)
     }
 
     private fun updateUi(){
