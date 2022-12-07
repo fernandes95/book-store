@@ -70,7 +70,11 @@ class VolumeDetailFragment : Fragment() {
                 if(!list.any()) return@let
 
                 val favItems = list.filter { item -> item.id == vm.volumeId }
-                vm.isFavorite.value = favItems.any()
+
+                //assuring that it only gives a value if value not given before hand
+                if(vm.isFavorite.value == null)
+                    vm.isFavorite.value = favItems.any()
+
                 vm.favorite = if(favItems.any()) favItems.first() else null
             }
         }
@@ -82,8 +86,8 @@ class VolumeDetailFragment : Fragment() {
         }
     }
 
-    private fun setFavoriteImage(isFav : Boolean){
-        val imageResource = if(isFav) R.drawable.ic_favorite else R.drawable.ic_favorite_border
+    private fun setFavoriteImage(isFav : Boolean?){
+        val imageResource = if(isFav == true) R.drawable.ic_favorite else R.drawable.ic_favorite_border
         binding.volumeDetailFavoriteIv.setImageDrawable(ContextCompat.getDrawable(requireContext(), imageResource))
     }
 
@@ -128,7 +132,7 @@ class VolumeDetailFragment : Fragment() {
         val authorsSize = volume.volumeInfo?.authors?.size
         if(authorsSize != null) {
             binding.volumeDetailAuthorTitleTv.text =
-                if (authorsSize!! > 1)
+                if (authorsSize > 1)
                     "Authors"
                 else
                     "Author"
