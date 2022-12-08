@@ -26,5 +26,17 @@
         <action
             android:id="@+id/action_VolumeDetailFragment_to_VolumesFragment"
             app:destination="@id/VolumesFragment" />
+        <action
+            android:id="@+id/action_VolumeDetailFragment_to_favoritesFragment"
+            app:destination="@id/favoritesFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/favoritesFragment"
+        android:name="com.example.bookstore.ui.fragments.FavoritesFragment"
+        android:label="@string/favorites_fragment_label"
+        tools:layout="@layout/fragment_favorites">
+        <action
+            android:id="@+id/action_favoritesFragment_to_VolumeDetailFragment"
+            app:destination="@id/VolumeDetailFragment" />
     </fragment>
 </navigation>

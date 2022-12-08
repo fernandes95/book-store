@@ -4,16 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.bookstore.MainActivity
 import com.example.bookstore.R
-import com.example.bookstore.data.models.toVolume
-import com.example.bookstore.data.models.dto.VolumeDto
-import com.example.bookstore.data.room.FavoriteEntity
 import com.example.bookstore.databinding.FragmentVolumesBinding
 import com.example.bookstore.ui.adapters.VolumesAdapter
 import com.example.bookstore.utils.API_MAX_RESULTS
@@ -29,7 +26,6 @@ class VolumesFragment : Fragment() {
 
     private lateinit var layoutManager : LinearLayoutManager
     private var adapter : VolumesAdapter? = null
-    private var favoritesAdapter : VolumesAdapter? = null
 
     private var totalItemCount : Int = 0
     private var lastVisibleItem : Int = 0
@@ -52,7 +48,6 @@ class VolumesFragment : Fragment() {
 
     private fun observeLiveData() {
         observeVolumesList()
-        observeFavoriteList()
     }
 
     private fun observeVolumesList(){
@@ -79,16 +74,6 @@ class VolumesFragment : Fragment() {
         }
     }
 
-    private fun observeFavoriteList() {
-        vm.repository.favoriteData.observe(viewLifecycleOwner) { favorites ->
-            favorites.let {
-                binding.volumesFilterCl.visibility = if(it != null && it.isNotEmpty()) View.VISIBLE else View.GONE
-                val list = convertEntityList(favorites)
-                favoritesAdapter = VolumesAdapter(list, clickListener())
-            }
-        }
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -97,14 +82,13 @@ class VolumesFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         vm.getFavData()
+        (activity as MainActivity).showNavBar(true)
     }
 
     private fun updateUi(){
-        setFilterUi()
         layoutManager = LinearLayoutManager(context)
         binding.volumesRv.layoutManager = layoutManager
         recyclerScrollListener()
-        binding.volumesFilterCl.setOnClickListener(filterOnclickListener())
     }
 
     private fun recyclerScrollListener() {
@@ -135,33 +119,5 @@ class VolumesFragment : Fragment() {
 
             findNavController().navigate(R.id.action_VolumesFragment_to_VolumeDetailFragment, bundle)
         }
-    }
-
-    private fun convertEntityList(list : List<FavoriteEntity>) : ArrayList<VolumeDto.Volume> {
-        val listConverted = ArrayList<VolumeDto.Volume>()
-        list.forEach { listConverted.add(it.toVolume())}
-
-        return listConverted
-    }
-
-    private fun filterOnclickListener() : View.OnClickListener {
-        return View.OnClickListener {
-            if(binding.volumesPb.visibility == View.VISIBLE)return@OnClickListener
-
-            isFilter = !isFilter
-            setFilterUi()
-        }
-    }
-
-    private fun setFilterUi(){
-        val imageResource = if(isFilter) R.drawable.ic_filter else R.drawable.ic_filter_outlined
-        binding.volumesFilterIv.setImageDrawable(ContextCompat.getDrawable(requireContext(), imageResource))
-
-        if(isFilter && favoritesAdapter == null || !isFilter && adapter == null) return
-
-        binding.volumesRv.adapter = if(isFilter) favoritesAdapter else adapter
-
-        if(!isFilter && firstVisibleItem != 0)
-            binding.volumesRv.layoutManager?.scrollToPosition(firstVisibleItem)
     }
 }

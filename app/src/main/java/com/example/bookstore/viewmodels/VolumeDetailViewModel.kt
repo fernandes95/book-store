@@ -14,7 +14,7 @@ class VolumeDetailViewModel : ViewModel() {
     var volumeId : String = ""
     var selectedVolume : VolumeDto.Volume? = null
     var isLoading : MutableLiveData<Boolean> = MutableLiveData(true)
-    var isFavorite : MutableLiveData<Boolean> = MutableLiveData(false)
+    var isFavorite : MutableLiveData<Boolean> = MutableLiveData(null)
     var favorite : FavoriteEntity? = null
 
     @Inject
@@ -35,20 +35,19 @@ class VolumeDetailViewModel : ViewModel() {
     fun getVolume(volumeId : String): LiveData<VolumeDto.Volume>? {
         this.volumeId = volumeId
         return repository.fetchVolumeFromApi(volumeId)
-        isFavorite.value = false
     }
 
     fun setFavorite(){
         try {
             if(favorite != null && isFavorite.value == true) {
-                repository?.delete(favorite!!)
+                repository.delete(favorite!!)
                 isFavorite.value = false
                 favorite = null
             }
             else {
-                var vol = selectedVolume?.toVolumeEntity()
+                val vol = selectedVolume?.toVolumeEntity()
                 vol?.let {
-                    repository?.insert(it)
+                    repository.insert(it)
                     isFavorite.value = true
                 }
             }
