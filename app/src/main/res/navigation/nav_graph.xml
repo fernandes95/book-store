@@ -33,8 +33,8 @@
     <fragment
         android:id="@+id/favoritesFragment"
         android:name="com.example.bookstore.ui.fragments.FavoritesFragment"
-        android:label="fragment_favorites"
-        tools:layout="@layout/fragment_favorites" >
+        android:label="@string/favorites_fragment_label"
+        tools:layout="@layout/fragment_favorites">
         <action
             android:id="@+id/action_favoritesFragment_to_VolumeDetailFragment"
             app:destination="@id/VolumeDetailFragment" />

@@ -7,8 +7,9 @@
     <string name="nav_other">Other</string>
 
     <!-- Strings used for fragments for navigation -->
-    <string name="volume_detail_fragment_label">Volume Detail Fragment</string>
-    <string name="volumes_fragment_label">Volumes Fragment</string>
+    <string name="volume_detail_fragment_label">Volume Detail</string>
+    <string name="volumes_fragment_label">Volumes</string>
+    <string name="favorites_fragment_label">Favorites</string>
 
     <!-- Volumes -->
     <string name="volumes_filter">Filter by Favorites</string>
@@ -17,4 +18,8 @@
     <string name="volume_detail_title">Title</string>
     <string name="volume_detail_description">Description</string>
     <string name="volume_detail_buy">BUY</string>
+
+    <!-- Favorites -->
+    <string name="favorites_empty">There is no favorite volumes</string>
+
 </resources>

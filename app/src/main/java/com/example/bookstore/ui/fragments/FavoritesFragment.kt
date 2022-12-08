@@ -47,6 +47,9 @@ class FavoritesFragment : Fragment() {
         vm.repository.favoriteData.observe(viewLifecycleOwner) { volumes ->
             volumes.let {
                 val list = convertEntityList(volumes)
+
+                binding.favoritesEmptyTv.visibility = if(list.any()) View.GONE else View.VISIBLE
+
                 adapter = VolumesAdapter(list, clickListener())
 
                 if(adapter != binding.favoritesRv.adapter)
