@@ -15,8 +15,8 @@ import com.example.bookstore.data.models.dto.VolumeDto
 import com.example.bookstore.data.room.FavoriteEntity
 import com.example.bookstore.databinding.FragmentFavoritesBinding
 import com.example.bookstore.ui.adapters.VolumesAdapter
+import com.example.bookstore.ui.screens.favorites.FavoritesViewModel
 import com.example.bookstore.utils.BUNDLE_VOLUME_ID
-import com.example.bookstore.viewmodels.FavoritesViewModel
 
 class FavoritesFragment : Fragment() {
     private val vm: FavoritesViewModel by viewModels()
@@ -34,12 +34,12 @@ class FavoritesFragment : Fragment() {
         _binding = FragmentFavoritesBinding.inflate(inflater, container, false)
 
         updateUi()
-        observeLiveData()
+//        observeLiveData()
 
         return binding.root
     }
 
-    private fun observeLiveData() {
+    /*private fun observeLiveData() {
         observeVolumesList()
     }
 
@@ -56,7 +56,7 @@ class FavoritesFragment : Fragment() {
                     binding.favoritesRv.adapter = adapter
             }
         }
-    }
+    }*/
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -65,8 +65,8 @@ class FavoritesFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        vm.getFavData()
-        (activity as MainActivity).showNavBar(true)
+//        vm.getFavData()
+//        (activity as MainActivity).showNavBar(true)
     }
 
     private fun updateUi(){

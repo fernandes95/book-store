@@ -1,21 +1,28 @@
-package com.example.bookstore.viewmodels
+package com.example.bookstore.ui.screens.detail
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.*
 import com.example.bookstore.data.models.dto.VolumeDto
-import com.example.bookstore.data.models.toVolumeEntity
-import com.example.bookstore.data.room.FavoriteEntity
 import com.example.bookstore.data.repositories.VolumesRepository
 import com.example.bookstore.di.DaggerAppComponent
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
 import javax.inject.Inject
+
+sealed interface DetailUiState {
+    data class Success(val volume: VolumeDto.Volume) : DetailUiState
+    object Error : DetailUiState
+    object Loading : DetailUiState
+}
 
 class VolumeDetailViewModel : ViewModel() {
 
-    var volumeId : String = ""
-    var selectedVolume : VolumeDto.Volume? = null
-    var isLoading : MutableLiveData<Boolean> = MutableLiveData(true)
-    var isFavorite : MutableLiveData<Boolean> = MutableLiveData(null)
-    var favorite : FavoriteEntity? = null
+    var detailUiState: DetailUiState by mutableStateOf(DetailUiState.Loading)
+        private set
 
     @Inject
     lateinit var repository: VolumesRepository
@@ -24,7 +31,7 @@ class VolumeDetailViewModel : ViewModel() {
 
     init {
         DaggerAppComponent.create().inject(this)
-        compositeDisposable.add(repository.fetchFavoritesFromDatabase())
+//        compositeDisposable.add(repository.fetchFavoritesFromDatabase())
     }
 
     override fun onCleared() {
@@ -32,12 +39,18 @@ class VolumeDetailViewModel : ViewModel() {
         compositeDisposable.clear()
     }
 
-    fun getVolume(volumeId : String): LiveData<VolumeDto.Volume>? {
-        this.volumeId = volumeId
-        return repository.fetchVolumeFromApi(volumeId)
-    }
+    fun getVolume(volumeId : String) = viewModelScope.launch {
+            detailUiState = DetailUiState.Loading
+            detailUiState = try {
+                DetailUiState.Success(repository.fetchVolumeFromApi(volumeId))
+            } catch (e: IOException) {
+                DetailUiState.Error
+            } catch (e: HttpException) {
+                DetailUiState.Error
+            }
+        }
 
-    fun setFavorite(){
+    /*fun setFavorite(){
         try {
             if(favorite != null && isFavorite.value == true) {
                 repository.delete(favorite!!)
@@ -45,7 +58,7 @@ class VolumeDetailViewModel : ViewModel() {
                 favorite = null
             }
             else {
-                val vol = selectedVolume?.toVolumeEntity()
+                val vol = selectedVolume?.toFavorite()
                 vol?.let {
                     repository.insert(it)
                     isFavorite.value = true
@@ -58,5 +71,5 @@ class VolumeDetailViewModel : ViewModel() {
         finally {
             repository.fetchFavoritesFromDatabase()
         }
-    }
+    }*/
 }

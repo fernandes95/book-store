@@ -1,17 +1,12 @@
 package com.example.bookstore
 
 import android.os.Bundle
-import android.view.View
-import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
-import com.example.bookstore.databinding.ActivityMainBinding
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import com.example.bookstore.ui.screens.VolumesApp
+import com.example.bookstore.ui.screens.theme.VolumesTheme
 
-class MainActivity : AppCompatActivity() {
+/*class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
@@ -46,5 +41,16 @@ class MainActivity : AppCompatActivity() {
 
     fun showNavBar(show : Boolean){
         navView.visibility = if(show) View.VISIBLE else View.GONE
+    }
+}*/
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            VolumesTheme {
+                VolumesApp()
+            }
+        }
     }
 }

@@ -1,9 +1,9 @@
 package com.example.bookstore.di
 
-import com.example.bookstore.viewmodels.VolumeDetailViewModel
-import com.example.bookstore.viewmodels.VolumesViewModel
+import com.example.bookstore.ui.screens.detail.VolumeDetailViewModel
+import com.example.bookstore.ui.screens.home.VolumesViewModel
 import com.example.bookstore.data.repositories.VolumesRepository
-import com.example.bookstore.viewmodels.FavoritesViewModel
+import com.example.bookstore.ui.screens.favorites.FavoritesViewModel
 import dagger.Component
 import javax.inject.Singleton
 

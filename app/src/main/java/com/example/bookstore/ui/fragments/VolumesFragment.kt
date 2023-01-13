@@ -9,13 +9,11 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.bookstore.MainActivity
 import com.example.bookstore.R
 import com.example.bookstore.databinding.FragmentVolumesBinding
 import com.example.bookstore.ui.adapters.VolumesAdapter
-import com.example.bookstore.utils.API_MAX_RESULTS
 import com.example.bookstore.utils.BUNDLE_VOLUME_ID
-import com.example.bookstore.viewmodels.VolumesViewModel
+import com.example.bookstore.ui.screens.home.VolumesViewModel
 
 class VolumesFragment : Fragment() {
     private val vm: VolumesViewModel by viewModels()
@@ -41,12 +39,12 @@ class VolumesFragment : Fragment() {
         _binding = FragmentVolumesBinding.inflate(inflater, container, false)
 
         updateUi()
-        observeLiveData()
+//        observeLiveData()
 
         return binding.root
     }
 
-    private fun observeLiveData() {
+    /*private fun observeLiveData() {
         observeVolumesList()
     }
 
@@ -72,7 +70,7 @@ class VolumesFragment : Fragment() {
                 volumesLimit = volumes.count() < API_MAX_RESULTS.toInt()
             }
         }
-    }
+    }*/
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -81,8 +79,8 @@ class VolumesFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        vm.getFavData()
-        (activity as MainActivity).showNavBar(true)
+//        vm.getFavData()
+//        (activity as MainActivity).showNavBar(true)
     }
 
     private fun updateUi(){

@@ -10,13 +10,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
-import com.bumptech.glide.Glide
-import com.example.bookstore.MainActivity
 import com.example.bookstore.R
 import com.example.bookstore.databinding.FragmentVolumeDetailBinding
 import com.example.bookstore.data.models.dto.VolumeDto
 import com.example.bookstore.utils.BUNDLE_VOLUME_ID
-import com.example.bookstore.viewmodels.VolumeDetailViewModel
+import com.example.bookstore.ui.screens.detail.VolumeDetailViewModel
 
 class VolumeDetailFragment : Fragment() {
     private val vm: VolumeDetailViewModel by viewModels()
@@ -45,26 +43,26 @@ class VolumeDetailFragment : Fragment() {
     private fun observeLiveData() {
         observeInProgress()
         observeIsError()
-        observeFavoriteList()
+//        observeFavoriteList()
     }
 
     private fun observeInProgress() {//TODO
-        vm.repository.isInProgress.observe(viewLifecycleOwner) { isLoading ->
+        /*vm.repository.isInProgress.observe(viewLifecycleOwner) { isLoading ->
             isLoading.let {
 
             }
-        }
+        }*/
     }
 
     private fun observeIsError() {//TODO
-        vm.repository.isError.observe(viewLifecycleOwner) { isError ->
+        /*vm.repository.isError.observe(viewLifecycleOwner) { isError ->
             isError.let {
 
             }
-        }
+        }*/
     }
 
-    private fun observeFavoriteList() {
+    /*private fun observeFavoriteList() {
         vm.repository.favoriteData.observe(viewLifecycleOwner) { list ->
             list.let {
                 if(!list.any()) return@let
@@ -78,11 +76,11 @@ class VolumeDetailFragment : Fragment() {
                 vm.favorite = if(favItems.any()) favItems.first() else null
             }
         }
-    }
+    }*/
 
     private fun favoriteOnclickListener() : View.OnClickListener {
         return View.OnClickListener {
-            vm.setFavorite()
+//            vm.setFavorite()
         }
     }
 
@@ -92,12 +90,12 @@ class VolumeDetailFragment : Fragment() {
     }
 
     private fun updateUi(){
-        (activity as MainActivity).showNavBar(false)
+//        (activity as MainActivity).showNavBar(false)
 
         binding.volumeDetailFavoriteIv.setOnClickListener(favoriteOnclickListener())
 
         val volumeId = arguments?.getString(BUNDLE_VOLUME_ID).toString()
-        vm.getVolume(volumeId)?.observe(viewLifecycleOwner) { volume ->
+        /*vm.getVolume(volumeId)?.observe(viewLifecycleOwner) { volume ->
             vm.selectedVolume = volume
 
             Glide.with(this)
@@ -113,11 +111,11 @@ class VolumeDetailFragment : Fragment() {
             vm.isFavorite.observe(viewLifecycleOwner){
                 setFavoriteImage(it)
             }
-        }
+        }*/
 
-        vm.isLoading.observe(viewLifecycleOwner){
+        /*vm.isLoading.observe(viewLifecycleOwner){
             binding.volumeDetailPb.visibility = if(it) View.VISIBLE else View.GONE
-        }
+        }*/
     }
 
     private fun setVisibility(volume: VolumeDto.Volume){

@@ -3,7 +3,7 @@ package com.example.bookstore.data.models
 import com.example.bookstore.data.models.dto.VolumeDto
 import com.example.bookstore.data.room.FavoriteEntity
 
-fun VolumeDto.Volume.toVolumeEntity() = FavoriteEntity(
+fun VolumeDto.Volume.toFavorite() = FavoriteEntity(
     id = this.id,
     title = this.volumeInfo?.title!!,
     thumb = this.volumeInfo.imageLinks?.thumbnail
