@@ -104,7 +104,7 @@ class VolumesFragment : Fragment() {
                 if(lastVisibleItem == totalItemCount && !isLoadingMore){
                     isLoadingMore = true
                     binding.volumesBottomPb.visibility = View.VISIBLE
-                    vm.getMoreVolumes(totalItemCount)
+//                    vm.getMoreVolumes(totalItemCount)
                 }
             }
         })

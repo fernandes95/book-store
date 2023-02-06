@@ -1,6 +1,7 @@
 package com.example.bookstore.data.api
 
 import com.example.bookstore.data.models.dto.VolumeDto
+import kotlinx.coroutines.flow.Flow
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.QueryMap

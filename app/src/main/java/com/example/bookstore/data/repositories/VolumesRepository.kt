@@ -13,6 +13,9 @@ import com.example.bookstore.utils.subscribeOnBackground
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flow
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -41,14 +44,17 @@ class VolumesRepository {
         }
     }
 
-    private suspend fun getVolumes(query : String, startIndex : Int) : VolumeDto.Volumes  =
-        volumeApi.getVolumesQuery(
+    private suspend fun getVolumes(query : String, startIndex : Int) : ArrayList<VolumeDto.Volume> {
+        val volumes = volumeApi.getVolumesQuery(
             mapOf(
                 "q" to query,
                 "maxResults" to API_MAX_RESULTS,
                 "startIndex" to startIndex.toString()
             )
         )
+
+        return volumes.items ?: arrayListOf()
+    }
 
     private suspend fun getVolume(volumeId : String) : VolumeDto.Volume =
         volumeApi.getVolumeById(volumeId)

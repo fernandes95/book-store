@@ -32,7 +32,8 @@ fun VolumesNavHost(
             HomeScreen(
                 uiState = vm.homeUiState,
                 volumeSelected = { volumeId -> navController.navigateToDetail(volumeId) },
-                retryAction = vm::getVolumes
+                retryAction = vm::getVolumes,
+                onLoadMore = vm::getMoreVolumes
             )
         }
         composable(route = Favorites.route) {

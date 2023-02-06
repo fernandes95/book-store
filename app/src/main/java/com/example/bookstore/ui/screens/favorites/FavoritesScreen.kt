@@ -15,7 +15,7 @@ fun FavoritesScreen(
 ) {
     when (uiState) {
         is FavUiState.Loading -> LoadingScreen(modifier)
-        is FavUiState.Success -> VolumesListScreen(uiState.favorites, { volumeSelected }, modifier)
+        is FavUiState.Success -> VolumesListScreen(uiState.favorites, { volumeSelected }, {}, modifier)
         else -> ErrorScreen(retryAction, modifier)
     }
 }

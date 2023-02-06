@@ -49,18 +49,19 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion "1.3.2"
     }
+    namespace 'com.example.bookstore'
 }
 
 dependencies {
-    def room_version = "2.4.3"
+    def room_version = "2.5.0"
     def lifecycle_version = "2.5.1"
     def retrofit_version = "2.9.0"
     def dagger_version = "2.43.1"
     def okhttp_version = "4.4.0"
-    def compose_version = "1.3.2"
+    def compose_version = "1.3.3"
 
-    implementation 'androidx.appcompat:appcompat:1.5.1'
-    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.6.0'
+    implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
