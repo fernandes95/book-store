@@ -15,7 +15,7 @@ import java.io.IOException
 import javax.inject.Inject
 
 sealed interface HomeUiState {
-    data class Success(val volumes: List<VolumeDto.Volume>) : HomeUiState
+    data class Success(val volumes: List<VolumeDto.Volume>, val isLoading: Boolean) : HomeUiState
     object Error : HomeUiState
     object Loading : HomeUiState
 }
@@ -42,7 +42,7 @@ class VolumesViewModel : ViewModel() {
            homeUiState = HomeUiState.Loading
            homeUiState = try {
                list = repository.fetchVolumesFromApi()
-               HomeUiState.Success(list)
+               HomeUiState.Success(list, false)
             } catch (e: IOException) {
                 HomeUiState.Error
             } catch (e: HttpException) {
@@ -58,6 +58,7 @@ class VolumesViewModel : ViewModel() {
 
     fun getMoreVolumes(){
         viewModelScope.launch {
+            homeUiState = HomeUiState.Success(list, true)
             homeUiState = try {
                 val newVolumes = repository.fetchVolumesFromApi(startIndex = list.count())
 
@@ -69,7 +70,7 @@ class VolumesViewModel : ViewModel() {
                  val uniqueVolumes = newList.distinctBy { it.id }
                  list = ArrayList(uniqueVolumes)
 
-                HomeUiState.Success(list)
+                HomeUiState.Success(list, false)
             } catch (e: IOException) {
                 HomeUiState.Error
             } catch (e: HttpException) {
