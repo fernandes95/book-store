@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -30,7 +31,7 @@ fun HomeScreen(
     uiState: HomeUiState,
     volumeSelected: (String) -> Unit,
     retryAction: () -> Unit,
-    onLoadMore: (Int) -> Unit,
+    onLoadMore: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     when (uiState) {
@@ -44,7 +45,7 @@ fun HomeScreen(
 fun InfiniteListHandler(
     listState: LazyListState,
     buffer: Int = 2,
-    onLoadMore: (Int) -> Unit
+    onLoadMore: () -> Unit
 ) {
     val loadMore = remember {
         derivedStateOf {
@@ -58,9 +59,10 @@ fun InfiniteListHandler(
 
     LaunchedEffect(loadMore) {
         snapshotFlow { loadMore.value }
+            .distinctUntilChanged()
             .filter{ it }
             .collect {
-                onLoadMore(listState.layoutInfo.totalItemsCount)
+                onLoadMore()
             }
     }
 }
@@ -69,11 +71,10 @@ fun InfiniteListHandler(
 fun VolumesListScreen(
     volumes: List<VolumeDto.Volume>,
     volumeSelected: (String) -> Unit,
-    onLoadMore: (Int) -> Unit,
+    onLoadMore: () -> Unit,
     modifier: Modifier = Modifier)
 {
     val listState = rememberLazyListState()
-    val scrollState = rememberScrollState()
 
     LazyColumn(
         state = listState,
@@ -87,11 +88,13 @@ fun VolumesListScreen(
             items = volumes,
             key = { volume -> volume.id}
         ) { volume ->
-            VolumeCard(volume = volume, onClicked = volumeSelected )
+            VolumeCard(volume = volume, onClicked = volumeSelected)
         }
     }
 
-    InfiniteListHandler(listState = listState, onLoadMore = onLoadMore)
+    InfiniteListHandler(listState = listState){
+        onLoadMore()
+    }
 }
 
 @Preview(showBackground = true)

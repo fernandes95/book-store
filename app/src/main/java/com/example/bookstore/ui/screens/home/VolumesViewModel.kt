@@ -9,7 +9,6 @@ import com.example.bookstore.data.models.dto.VolumeDto
 import com.example.bookstore.data.repositories.VolumesRepository
 import com.example.bookstore.di.DaggerAppComponent
 import io.reactivex.disposables.CompositeDisposable
-import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
@@ -57,16 +56,20 @@ class VolumesViewModel : ViewModel() {
         compositeDisposable.clear()
     }
 
-    //adding 1 to the startIndex so that I don't get the previous last item duplicated
-    fun getMoreVolumes(startIndex : Int){
+    fun getMoreVolumes(){
         viewModelScope.launch {
-            homeUiState = HomeUiState.Loading
             homeUiState = try {
-                val newVolumes = repository.fetchVolumesFromApi(startIndex = startIndex.plus(1))
+                val newVolumes = repository.fetchVolumesFromApi(startIndex = list.count())
+
                 list.addAll(newVolumes)
+
                 val newList = arrayListOf<VolumeDto.Volume>()
                 newList.addAll(list)
-                HomeUiState.Success(newList)
+
+                 val uniqueVolumes = newList.distinctBy { it.id }
+                 list = ArrayList(uniqueVolumes)
+
+                HomeUiState.Success(list)
             } catch (e: IOException) {
                 HomeUiState.Error
             } catch (e: HttpException) {
