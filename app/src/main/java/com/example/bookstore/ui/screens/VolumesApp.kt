@@ -71,14 +71,6 @@ fun VolumesAppBar(
                         )
                     }
                 }
-            },
-            actions = {
-                IconButton(onClick = {}) {
-                    Icon(
-                        imageVector = Icons.Outlined.FavoriteBorder,
-                        contentDescription = null
-                    )
-                }
             }
         )
 }

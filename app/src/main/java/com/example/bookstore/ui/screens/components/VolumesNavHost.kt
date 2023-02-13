@@ -16,7 +16,6 @@ import com.example.bookstore.ui.screens.favorites.FavoritesViewModel
 import com.example.bookstore.ui.screens.home.HomeScreen
 import com.example.bookstore.ui.screens.home.VolumesViewModel
 
-
 @Composable
 fun VolumesNavHost(
     navController: NavHostController,
@@ -49,16 +48,17 @@ fun VolumesNavHost(
             arguments = Detail.arguments,
             deepLinks = Detail.deepLinks
         ) { navBackStackEntry ->
-            val volumeId = navBackStackEntry.arguments?.getString(Detail.volumeIdArg)
+            val volumeId = navBackStackEntry.arguments?.getString(Detail.volumeIdArg)!!
             val vm: VolumeDetailViewModel = viewModel()
             if(vm.detailUiState is DetailUiState.Loading)//TODO PRETTY SURE THIS IS THE WRONG WAY TO DO IT
-                (vm::getVolume)(volumeId!!)
+                (vm::getVolume)(volumeId)
             val context = LocalContext.current
 
             DetailScreen(
                 uiState = vm.detailUiState,
                 context = context,
-                retryAction = { (vm::getVolume)(volumeId!!) }//TODO NOT SURE IF THIS WORKS
+                favAction = vm::setFavorite,
+                retryAction = { (vm::getVolume)(volumeId) }//TODO NOT SURE IF THIS WORKS,
                 )
         }
     }

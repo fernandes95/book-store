@@ -8,23 +8,19 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.asLiveData
+import com.example.bookstore.R
 import com.example.bookstore.data.models.dto.VolumeDto
-import com.example.bookstore.ui.screens.components.ErrorScreen
 import com.example.bookstore.ui.screens.components.LoadingScreen
+import com.example.bookstore.ui.screens.components.RetryScreen
 import com.example.bookstore.ui.screens.components.VolumeCard
 import com.example.bookstore.ui.screens.theme.VolumesTheme
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.toList
-import okhttp3.internal.toImmutableList
 
 @Composable
 fun HomeScreen(
@@ -37,7 +33,7 @@ fun HomeScreen(
     when (uiState) {
         is HomeUiState.Loading -> LoadingScreen(modifier)
         is HomeUiState.Success -> VolumesListScreen(uiState.volumes, volumeSelected, onLoadMore, modifier)
-        else -> ErrorScreen(retryAction, modifier)
+        else -> RetryScreen(stringResource(R.string.failed_loading),  retryAction, modifier)
     }
 }
 

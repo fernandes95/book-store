@@ -7,9 +7,10 @@ import android.widget.TextView
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,26 +29,29 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.bookstore.R
 import com.example.bookstore.data.models.dto.VolumeDto
-import com.example.bookstore.ui.screens.components.ErrorScreen
 import com.example.bookstore.ui.screens.components.LoadingScreen
+import com.example.bookstore.ui.screens.components.RetryScreen
 
 @Composable
 fun DetailScreen(
     uiState: DetailUiState,
     context: Context,
+    favAction: () -> Unit,
     retryAction: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     when (uiState) {
         is DetailUiState.Loading -> LoadingScreen(modifier)
-        is DetailUiState.Success -> DetailPage(uiState.volume, context, modifier)
-        else -> ErrorScreen(retryAction, modifier)
+        is DetailUiState.Success -> DetailPage(uiState.volume, uiState.isFav, favAction, context, modifier)
+        else -> RetryScreen(stringResource(R.string.failed_loading), retryAction, modifier)
     }
 }
 
 @Composable
 fun DetailPage(
     volume: VolumeDto.Volume,
+    isFav: Boolean,
+    favAction: () -> Unit,
     context: Context,
     modifier: Modifier
 ){
@@ -57,6 +61,18 @@ fun DetailPage(
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
     ){
+        IconButton(
+            onClick = favAction,
+            modifier = modifier
+                        .align(Alignment.End)) {
+            Icon(
+                imageVector = if(isFav) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                contentDescription = null,
+                modifier = modifier
+                            .height(35.dp)
+                            .width(35.dp)
+            )
+        }
         AsyncImage(
             modifier = Modifier
                 .height(150.dp)
@@ -201,6 +217,6 @@ private fun DetailScreenPreview(){
             accessInfo = null,
             searchInfo = null
         )
-        DetailPage(volume = vol, LocalContext.current, modifier = Modifier)
+        DetailPage(volume = vol, false, {}, LocalContext.current, modifier = Modifier)
     }
 }

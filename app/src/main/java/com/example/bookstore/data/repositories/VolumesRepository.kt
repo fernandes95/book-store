@@ -30,7 +30,7 @@ class VolumesRepository {
         DaggerAppComponent.create().inject(this)
     }
 
-    fun insert(volume: FavoriteEntity) {
+    /*fun insert(volume: FavoriteEntity) {
         subscribeOnBackground {
             VolumesApplication.database.favDao().insert(volume)
             Log.v("DEBUG : ", "${volume.title}+ was added to db.")
@@ -42,7 +42,7 @@ class VolumesRepository {
             VolumesApplication.database.favDao().delete(favorite)
             Log.v("DEBUG : ", "${favorite.title}+ was removed from db.")
         }
-    }
+    }*/
 
     private suspend fun getVolumes(query : String, startIndex : Int) : ArrayList<VolumeDto.Volume> {
         val volumes = volumeApi.getVolumesQuery(
@@ -58,6 +58,12 @@ class VolumesRepository {
 
     private suspend fun getVolume(volumeId : String) : VolumeDto.Volume =
         volumeApi.getVolumeById(volumeId)
+
+
+    private suspend fun insertFavorite(volume: FavoriteEntity) = VolumesApplication.database.favDao().insert(volume)
+    private suspend fun deleteFavorite(volume: FavoriteEntity) = VolumesApplication.database.favDao().delete(volume)
+    private fun getAllFavorites() : Flow<List<FavoriteEntity>> = VolumesApplication.database.favDao().getAll()
+    private fun getFavorite(volumeId: String) : Flow<FavoriteEntity> = VolumesApplication.database.favDao().findById(volumeId)
 
     /*private fun getAllFavorites(): Disposable {
         return VolumesApplication.database.favDao()
@@ -85,7 +91,10 @@ class VolumesRepository {
             )
     }*/
 
-//    fun fetchFavoritesFromDatabase(): Disposable = getAllFavorites()
+    suspend fun insertFavoriteToDatabase(volume: FavoriteEntity) = insertFavorite(volume)
+    suspend fun deleteFavoriteToDatabase(volume: FavoriteEntity) = deleteFavorite(volume)
+    fun fetchFavoritesFromDatabase() = getAllFavorites()
+    fun fetchFavoriteFromDatabase(volumeId: String) = getFavorite(volumeId)
     suspend fun fetchVolumesFromApi(query : String = "android", startIndex : Int = 0) = getVolumes(query, startIndex)
     suspend fun fetchVolumeFromApi(volumeId : String) = getVolume(volumeId)
 }

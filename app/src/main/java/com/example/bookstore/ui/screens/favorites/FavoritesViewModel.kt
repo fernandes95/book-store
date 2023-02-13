@@ -1,24 +1,29 @@
 package com.example.bookstore.ui.screens.favorites
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.bookstore.data.models.dto.VolumeDto
+import com.example.bookstore.data.models.toVolume
 import com.example.bookstore.data.repositories.VolumesRepository
+import com.example.bookstore.data.room.FavoriteEntity
 import com.example.bookstore.di.DaggerAppComponent
+import com.example.bookstore.utils.TIMEOUT_MILLIS
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 sealed interface FavUiState {
     data class Success(val favorites: List<VolumeDto.Volume>) : FavUiState
-    object Error : FavUiState
+    object Retry : FavUiState
     object Loading : FavUiState
 }
 
 class FavoritesViewModel : ViewModel() {
-    var favUiState: FavUiState by mutableStateOf(FavUiState.Loading)
-        private set
+
+    lateinit var favUiState: StateFlow<FavUiState>
 
     @Inject
     lateinit var repository: VolumesRepository
@@ -27,8 +32,7 @@ class FavoritesViewModel : ViewModel() {
 
     init {
         DaggerAppComponent.create().inject(this)
-//        compositeDisposable.add(repository.fetchFavoritesFromDatabase())
-//        getFavData()
+        getFavorites()
     }
 
     override fun onCleared() {
@@ -36,7 +40,25 @@ class FavoritesViewModel : ViewModel() {
         compositeDisposable.clear()
     }
 
-    fun getFavorites() {
-//        repository.fetchFavoritesFromDatabase()
+     fun getFavorites(){
+         favUiState = repository.fetchFavoritesFromDatabase().map {
+            if(it.any()) {
+                val list = convertEntityList(it)
+                FavUiState.Success(list)
+            }
+            else
+                FavUiState.Retry
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = FavUiState.Loading
+        )
+    }
+
+    private fun convertEntityList(list : List<FavoriteEntity>) : ArrayList<VolumeDto.Volume> {
+        val listConverted = ArrayList<VolumeDto.Volume>()
+        list.forEach { listConverted.add(it.toVolume())}
+
+        return listConverted
     }
 }

@@ -1,26 +1,22 @@
 package com.example.bookstore.data.room
 
-import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
-import io.reactivex.Single
+import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FavoriteDao {
     @Query("SELECT * FROM favorites_table")
-    fun getAll(): Single<List<FavoriteEntity>>
+    fun getAll(): Flow<List<FavoriteEntity>>
 
     @Query("SELECT * FROM favorites_table WHERE volume_id LIKE :volumeId LIMIT 1")
-    fun findById(volumeId: String): LiveData<FavoriteEntity>
+    fun findById(volumeId: String): Flow<FavoriteEntity>
 
     @Query("SELECT EXISTS (SELECT * FROM favorites_table WHERE volume_id LIKE :volumeId LIMIT 1)")
     fun verifyExistsById(volumeId: String): Boolean
 
-    @Insert
-    fun insert(volume: FavoriteEntity)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(volume: FavoriteEntity)
 
     @Delete
-    fun delete(volume: FavoriteEntity)
+    suspend fun delete(volume: FavoriteEntity)
 }
