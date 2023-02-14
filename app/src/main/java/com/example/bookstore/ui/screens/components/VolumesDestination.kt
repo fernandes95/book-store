@@ -6,8 +6,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import androidx.navigation.navDeepLink
-
 
 interface VolumesDestination {
     val icon: ImageVector?
@@ -24,17 +22,12 @@ object Favorites : VolumesDestination {
     override val route = "favorites"
 }
 
-object Detail : VolumesDestination {
+object Detail : VolumesDestination{
     override val icon = null
     override val route = "detail"
     const val volumeIdArg = "volume_id"
     val routeWithArgs = "$route/{$volumeIdArg}"
-    val arguments = listOf(
-        navArgument(volumeIdArg) { type = NavType.StringType }
-    )
-    val deepLinks = listOf(
-        navDeepLink { uriPattern = "rally://$route/{$volumeIdArg}" }
-    )
+    val arguments = listOf(navArgument(volumeIdArg) { type = NavType.StringType })
 }
 
 // Screens to be displayed in the bottom

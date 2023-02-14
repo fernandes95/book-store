@@ -5,17 +5,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.core.content.ContextCompat
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.bookstore.R
 import com.example.bookstore.ui.screens.components.*
+import java.util.*
 
 @Composable
 fun VolumesApp() {
@@ -23,7 +20,6 @@ fun VolumesApp() {
 
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStack?.destination
-    val currentScreen = volumesTabRowScreens.find { it.route == currentDestination?.route } ?: Home
     val destinationRoute = currentDestination?.route ?: Home.route
 
     Scaffold(
@@ -31,18 +27,41 @@ fun VolumesApp() {
         topBar = {
             if(destinationRoute.contains(Detail.route)) {
                 VolumesAppBar(
+                    title = stringResource(com.example.bookstore.R.string.volume_detail_fragment_label),
                     canNavigateBack = navController.previousBackStackEntry != null,
                     navigateUp = { navController.navigateUp() }
                 )
             }
         },
         bottomBar = {
-            if(!destinationRoute.contains(Detail.route)) {
-                MainTabRow(
-                    allScreens = volumesTabRowScreens,
-                    onTabSelected = { newScreen -> navController.navigateSingleTopTo(newScreen.route) },
-                    currentScreen = currentScreen
-                )
+            if (!destinationRoute.contains(Detail.route)) {
+                BottomNavigation {
+                    val navBackStackEntry by navController.currentBackStackEntryAsState()
+                    val currentRoute = navBackStackEntry?.destination?.route
+                    volumesTabRowScreens.forEach { item ->
+                        BottomNavigationItem(
+                            icon = { Icon(item.icon!!, contentDescription = null) },
+                            label = { Text(item.route.uppercase(Locale.getDefault())) },
+                            selected = currentRoute == item.route,
+                            onClick = {
+                                navController.navigate(item.route) {
+                                    // Pop up to the start destination of the graph to
+                                    // avoid building up a large stack of destinations
+                                    // on the back stack as users select items
+                                    navController.graph.startDestinationRoute?.let { route ->
+                                        popUpTo(route) {
+                                            saveState = true
+                                        }
+                                    }
+                                    // Avoid multiple copies of the same destination when re-selecting the same item
+                                    launchSingleTop = true
+                                    // Restore state when re-selecting a previously selected item
+                                    restoreState = true
+                                }
+                            }
+                        )
+                    }
+                }
             }
         }
     ) { innerPadding ->
@@ -55,22 +74,23 @@ fun VolumesApp() {
 
 @Composable
 fun VolumesAppBar(
+    title: String,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-        TopAppBar(
-            title = { Text(stringResource(R.string.volume_detail_fragment_label)) },
-            modifier = modifier,
-            navigationIcon = {
-                if (canNavigateBack) {
-                    IconButton(onClick = navigateUp) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
+    TopAppBar(
+        title = { Text(title) },
+        modifier = modifier,
+        navigationIcon = {
+            if (canNavigateBack) {
+                IconButton(onClick = navigateUp) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = null
+                    )
                 }
             }
-        )
+        }
+    )
 }

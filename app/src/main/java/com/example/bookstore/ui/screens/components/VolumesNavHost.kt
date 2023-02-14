@@ -46,7 +46,6 @@ fun VolumesNavHost(
         composable(
             route = Detail.routeWithArgs,
             arguments = Detail.arguments,
-            deepLinks = Detail.deepLinks
         ) { navBackStackEntry ->
             val volumeId = navBackStackEntry.arguments?.getString(Detail.volumeIdArg)!!
             val vm: VolumeDetailViewModel = viewModel()
@@ -82,5 +81,5 @@ fun NavHostController.navigateSingleTopTo(route: String) =
     }
 
 private fun NavHostController.navigateToDetail(volumeId: String) {
-    this.navigateSingleTopTo("${Detail.route}/$volumeId")
+    this.navigate("${Detail.route}/$volumeId")
 }
