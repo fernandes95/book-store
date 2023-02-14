@@ -40,7 +40,7 @@ fun HomeScreen(
 ) {
     when (uiState) {
         is HomeUiState.Loading -> LoadingScreen(modifier)
-        is HomeUiState.Success -> VolumesListScreen(uiState.volumes, uiState.isLoading, volumeSelected, onLoadMore, modifier)
+        is HomeUiState.Success -> VolumesListScreen(uiState.volumes, uiState.isLoading, volumeSelected, onLoadMore, uiState.isOnLimit, modifier)
         else -> RetryScreen(stringResource(R.string.failed_loading),  retryAction, modifier)
     }
 }
@@ -48,9 +48,12 @@ fun HomeScreen(
 @Composable
 fun InfiniteListHandler(
     listState: LazyListState,
+    isOnLimit: Boolean,
     buffer: Int = 2,
     onLoadMore: () -> Unit
 ) {
+    if(isOnLimit) return
+
     val loadMore = remember {
         derivedStateOf {
             val layoutInfo = listState.layoutInfo
@@ -77,6 +80,7 @@ fun VolumesListScreen(
     isLoading: Boolean,
     volumeSelected: (String) -> Unit,
     onLoadMore: () -> Unit,
+    isOnLimit: Boolean = false,
     modifier: Modifier = Modifier)
 {
     Box(Modifier.fillMaxSize()) {
@@ -113,7 +117,7 @@ fun VolumesListScreen(
             }
         }
 
-        InfiniteListHandler(listState = listState){
+        InfiniteListHandler(listState = listState, isOnLimit = isOnLimit) {
             onLoadMore()
         }
     }
