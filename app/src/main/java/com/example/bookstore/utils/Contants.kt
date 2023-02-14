@@ -11,5 +11,7 @@ const val DATABASE_NAME = "favoritesDb"
 //BUNDLE IDS
 const val BUNDLE_VOLUME_ID = "BUNDLE_VOLUME_ID"
 
+const val TIMEOUT_MILLIS = 5_000L
+
 
 
