@@ -15,15 +15,15 @@ import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
-sealed interface HomeUiState {
-    data class Success(val volumes: List<VolumeDto.Volume>, val isLoading: Boolean, val isOnLimit: Boolean = false) : HomeUiState
-    object Error : HomeUiState
-    object Loading : HomeUiState
+sealed interface ListUiState {
+    data class Success(val volumes: List<VolumeDto.Volume>, val isLoading: Boolean, val isOnLimit: Boolean = false) : ListUiState
+    object Retry : ListUiState
+    object Loading : ListUiState
 }
 
 class VolumesViewModel : ViewModel() {
 
-    var homeUiState: HomeUiState by mutableStateOf(HomeUiState.Loading)
+    var uiState: ListUiState by mutableStateOf(ListUiState.Loading)
         private set
 
     @Inject
@@ -40,15 +40,15 @@ class VolumesViewModel : ViewModel() {
 
     fun getVolumes() {
         viewModelScope.launch {
-           homeUiState = HomeUiState.Loading
-           homeUiState = try {
+           uiState = ListUiState.Loading
+           uiState = try {
                list = repository.fetchVolumesFromApi()
                val limit = checkVolumesLimit(list.size)
-               HomeUiState.Success(list, false, limit)
+               ListUiState.Success(list, false, limit)
             } catch (e: IOException) {
-                HomeUiState.Error
+               ListUiState.Retry
             } catch (e: HttpException) {
-                HomeUiState.Error
+               ListUiState.Retry
             }
         }
     }
@@ -60,8 +60,8 @@ class VolumesViewModel : ViewModel() {
 
     fun getMoreVolumes(){
         viewModelScope.launch {
-            homeUiState = HomeUiState.Success(list, true)
-            homeUiState = try {
+            uiState = ListUiState.Success(list, true)
+            uiState = try {
                 val newVolumes = repository.fetchVolumesFromApi(startIndex = list.count())
 
                 list.addAll(newVolumes)
@@ -73,11 +73,11 @@ class VolumesViewModel : ViewModel() {
                  list = ArrayList(uniqueVolumes)
 
                 val limit = checkVolumesLimit(newVolumes.size)
-                HomeUiState.Success(list, false, limit)
+                ListUiState.Success(list, false, limit)
             } catch (e: IOException) {
-                HomeUiState.Error
+                ListUiState.Retry
             } catch (e: HttpException) {
-                HomeUiState.Error
+                ListUiState.Retry
             }
         }
     }

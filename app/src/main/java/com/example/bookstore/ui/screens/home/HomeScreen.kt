@@ -23,6 +23,7 @@ import com.example.bookstore.R
 import com.example.bookstore.data.models.dto.VolumeDto
 import com.example.bookstore.data.models.toVolume
 import com.example.bookstore.data.room.FavoriteEntity
+import com.example.bookstore.ui.screens.components.LoadingOverlay
 import com.example.bookstore.ui.screens.components.LoadingScreen
 import com.example.bookstore.ui.screens.components.RetryScreen
 import com.example.bookstore.ui.screens.components.VolumeCard
@@ -32,15 +33,15 @@ import kotlinx.coroutines.flow.filter
 
 @Composable
 fun HomeScreen(
-    uiState: HomeUiState,
+    uiState: ListUiState,
     volumeSelected: (String) -> Unit,
     retryAction: () -> Unit,
     onLoadMore: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     when (uiState) {
-        is HomeUiState.Loading -> LoadingScreen(modifier)
-        is HomeUiState.Success -> VolumesListScreen(uiState.volumes, uiState.isLoading, volumeSelected, onLoadMore, uiState.isOnLimit, modifier)
+        is ListUiState.Loading -> LoadingScreen(modifier)
+        is ListUiState.Success -> VolumesListScreen(uiState, volumeSelected, onLoadMore, modifier)
         else -> RetryScreen(stringResource(R.string.failed_loading),  retryAction, modifier)
     }
 }
@@ -76,11 +77,9 @@ fun InfiniteListHandler(
 
 @Composable
 fun VolumesListScreen(
-    volumes: List<VolumeDto.Volume>,
-    isLoading: Boolean,
+    uiState: ListUiState.Success,
     volumeSelected: (String) -> Unit,
     onLoadMore: () -> Unit,
-    isOnLimit: Boolean = false,
     modifier: Modifier = Modifier)
 {
     Box(Modifier.fillMaxSize()) {
@@ -95,29 +94,18 @@ fun VolumesListScreen(
             contentPadding = PaddingValues(16.dp),
         ) {
             items(
-                items = volumes,
+                items = uiState.volumes,
                 key = { volume -> volume.id}
             ) { volume ->
                 VolumeCard(volume = volume, onClicked = volumeSelected)
             }
         }
 
-        if(isLoading) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = modifier
-                    .background(Color.White.copy(alpha = 0.5f))
-                    .fillMaxSize()
-            ) {
-                Image(
-                    modifier = Modifier.size(200.dp),
-                    painter = painterResource(R.drawable.ic_loading),
-                    contentDescription = null
-                )
-            }
+        if(uiState.isLoading) {
+            LoadingOverlay()
         }
 
-        InfiniteListHandler(listState = listState, isOnLimit = isOnLimit) {
+        InfiniteListHandler(listState = listState, isOnLimit = uiState.isOnLimit) {
             onLoadMore()
         }
     }
@@ -130,6 +118,11 @@ fun ListScreenPreview() {
         val mockData = List(10) {
             FavoriteEntity(it, "$it", "Lorem Ipsum - $it", "").toVolume()
         }
-        VolumesListScreen(mockData, true, {}, {})
+        val uiStateMock : ListUiState.Success = ListUiState.Success(
+            volumes = mockData,
+            isLoading = true,
+            isOnLimit = false
+        )
+        VolumesListScreen(uiStateMock, {}, {})
     }
 }

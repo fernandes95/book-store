@@ -7,6 +7,7 @@ import com.example.bookstore.data.models.toVolume
 import com.example.bookstore.data.repositories.VolumesRepository
 import com.example.bookstore.data.room.FavoriteEntity
 import com.example.bookstore.di.DaggerAppComponent
+import com.example.bookstore.ui.screens.home.ListUiState
 import com.example.bookstore.utils.TIMEOUT_MILLIS
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,15 +16,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
-sealed interface FavUiState {
-    data class Success(val favorites: List<VolumeDto.Volume>) : FavUiState
-    object Retry : FavUiState
-    object Loading : FavUiState
-}
-
 class FavoritesViewModel : ViewModel() {
 
-    lateinit var favUiState: StateFlow<FavUiState>
+    lateinit var uiState: StateFlow<ListUiState>
 
     @Inject
     lateinit var repository: VolumesRepository
@@ -41,17 +36,17 @@ class FavoritesViewModel : ViewModel() {
     }
 
      fun getFavorites(){
-         favUiState = repository.fetchFavoritesFromDatabase().map {
+         uiState = repository.fetchFavoritesFromDatabase().map {
             if(it.any()) {
                 val list = convertEntityList(it)
-                FavUiState.Success(list)
+                ListUiState.Success(list, false)
             }
             else
-                FavUiState.Retry
+                ListUiState.Retry
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = FavUiState.Loading
+            initialValue = ListUiState.Loading
         )
     }
 

@@ -8,12 +8,13 @@ import androidx.compose.ui.res.stringResource
 import com.example.bookstore.R
 import com.example.bookstore.ui.screens.components.LoadingScreen
 import com.example.bookstore.ui.screens.components.RetryScreen
+import com.example.bookstore.ui.screens.home.ListUiState
 import com.example.bookstore.ui.screens.home.VolumesListScreen
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun FavoritesScreen(
-    uiState: StateFlow<FavUiState>,
+    uiState: StateFlow<ListUiState>,
     volumeSelected: (String) -> Unit,
     retryAction: () -> Unit,
     modifier: Modifier = Modifier
@@ -21,8 +22,8 @@ fun FavoritesScreen(
     val uiStateAsState by uiState.collectAsState()
 
     when (uiStateAsState) {
-        is FavUiState.Loading -> LoadingScreen(modifier)
-        is FavUiState.Success -> VolumesListScreen((uiStateAsState as FavUiState.Success).favorites, false, volumeSelected, {}, false, modifier)
+        is ListUiState.Loading -> LoadingScreen(modifier)
+        is ListUiState.Success -> VolumesListScreen((uiStateAsState as ListUiState.Success), volumeSelected, {}, modifier)
         else -> RetryScreen(stringResource(R.string.empty), retryAction, modifier)
     }
 }
