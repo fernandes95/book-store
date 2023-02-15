@@ -31,6 +31,7 @@ fun VolumesNavHost(
             HomeScreen(
                 uiState = vm.uiState,
                 volumeSelected = { volumeId -> navController.navigateToDetail(volumeId) },
+                onSearchAction = vm::searchVolumes,
                 retryAction = vm::getVolumes,
                 onLoadMore = vm::getMoreVolumes
             )

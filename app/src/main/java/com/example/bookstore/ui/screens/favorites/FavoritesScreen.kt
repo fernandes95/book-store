@@ -1,5 +1,6 @@
 package com.example.bookstore.ui.screens.favorites
 
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -8,8 +9,8 @@ import androidx.compose.ui.res.stringResource
 import com.example.bookstore.R
 import com.example.bookstore.ui.screens.components.LoadingScreen
 import com.example.bookstore.ui.screens.components.RetryScreen
+import com.example.bookstore.ui.screens.components.VolumesList
 import com.example.bookstore.ui.screens.home.ListUiState
-import com.example.bookstore.ui.screens.home.VolumesListScreen
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
@@ -23,7 +24,17 @@ fun FavoritesScreen(
 
     when (uiStateAsState) {
         is ListUiState.Loading -> LoadingScreen(modifier)
-        is ListUiState.Success -> VolumesListScreen((uiStateAsState as ListUiState.Success), volumeSelected, {}, modifier)
+        is ListUiState.Success -> FavoritesListScreen((uiStateAsState as ListUiState.Success), volumeSelected, modifier)
         else -> RetryScreen(stringResource(R.string.empty), retryAction, modifier)
     }
+}
+
+@Composable
+fun FavoritesListScreen(
+    uiState: ListUiState.Success,
+    volumeSelected: (String) -> Unit,
+    modifier: Modifier = Modifier)
+{
+    val listState = rememberLazyListState()
+    VolumesList(uiState, volumeSelected, listState, modifier)
 }
