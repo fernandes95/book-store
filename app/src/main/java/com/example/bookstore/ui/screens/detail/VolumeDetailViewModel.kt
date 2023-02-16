@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bookstore.data.models.dto.VolumeDto
 import com.example.bookstore.data.models.toFavorite
+import com.example.bookstore.data.repositories.OfflineRepository
 import com.example.bookstore.data.repositories.VolumesRepository
 import com.example.bookstore.data.room.FavoriteEntity
 import com.example.bookstore.di.DaggerAppComponent
@@ -31,6 +32,9 @@ class VolumeDetailViewModel : ViewModel() {
     @Inject
     lateinit var repository: VolumesRepository
 
+    @Inject
+    lateinit var offlineRepository: OfflineRepository
+
     private val compositeDisposable by lazy { CompositeDisposable() }
 
     lateinit var volume: VolumeDto.Volume
@@ -49,7 +53,7 @@ class VolumeDetailViewModel : ViewModel() {
             uiState = DetailUiState.Loading
             uiState = try {
                 volume = repository.fetchVolumeFromApi(volumeId)
-                volumeFromDb = repository.fetchFavoriteFromDatabase(volumeId).first()
+                volumeFromDb = offlineRepository.fetchFavoriteFromDatabase(volumeId).first()
                 DetailUiState.Success(volume, volumeFromDb != null)
             } catch (e: IOException) {
                 DetailUiState.Error
@@ -61,14 +65,14 @@ class VolumeDetailViewModel : ViewModel() {
     fun setFavorite() = viewModelScope.launch {
             if(volumeFromDb != null) {
                 val volume = volumeFromDb
-                repository.deleteFavoriteToDatabase(volume!!)
+                offlineRepository.deleteFavoriteToDatabase(volume!!)
             }
             else {
-                repository.insertFavoriteToDatabase(volume.toFavorite())
+                offlineRepository.insertFavoriteToDatabase(volume.toFavorite())
             }
 
             uiState = try {
-                volumeFromDb = repository.fetchFavoriteFromDatabase(volume.id).first()
+                volumeFromDb = offlineRepository.fetchFavoriteFromDatabase(volume.id).first()
                 DetailUiState.Success(volume, volumeFromDb != null)
             } catch (e: IOException) {
                 DetailUiState.Error

@@ -1,5 +1,6 @@
 package com.example.bookstore.di
 
+import com.example.bookstore.data.repositories.OfflineRepository
 import com.example.bookstore.ui.screens.detail.VolumeDetailViewModel
 import com.example.bookstore.ui.screens.home.VolumesViewModel
 import com.example.bookstore.data.repositories.VolumesRepository
@@ -11,6 +12,8 @@ import javax.inject.Singleton
 @Component(modules = [AppModule::class])
 interface AppComponent {
     fun inject(repository: VolumesRepository)
+
+    fun inject(repository: OfflineRepository)
 
     fun inject(viewModel: VolumesViewModel)
 

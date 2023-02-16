@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bookstore.data.models.dto.VolumeDto
 import com.example.bookstore.data.models.toVolume
+import com.example.bookstore.data.repositories.OfflineRepository
 import com.example.bookstore.data.repositories.VolumesRepository
 import com.example.bookstore.data.room.FavoriteEntity
 import com.example.bookstore.di.DaggerAppComponent
@@ -21,7 +22,7 @@ class FavoritesViewModel : ViewModel() {
     lateinit var uiState: StateFlow<ListUiState>
 
     @Inject
-    lateinit var repository: VolumesRepository
+    lateinit var repository: OfflineRepository
 
     private val compositeDisposable by lazy { CompositeDisposable() }
 
