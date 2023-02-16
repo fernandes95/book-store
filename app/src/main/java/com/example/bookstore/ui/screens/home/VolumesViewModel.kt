@@ -15,15 +15,16 @@ import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
-sealed interface HomeUiState {
-    data class Success(val volumes: List<VolumeDto.Volume>, val isLoading: Boolean, val isOnLimit: Boolean = false) : HomeUiState
-    object Error : HomeUiState
-    object Loading : HomeUiState
+sealed interface ListUiState {
+    data class Success(val volumes: List<VolumeDto.Volume>, val isLoading: Boolean,
+                       val isOnLimit: Boolean = false) : ListUiState
+    object Retry : ListUiState
+    object Loading : ListUiState
 }
 
 class VolumesViewModel : ViewModel() {
 
-    var homeUiState: HomeUiState by mutableStateOf(HomeUiState.Loading)
+    var uiState: ListUiState by mutableStateOf(ListUiState.Loading)
         private set
 
     @Inject
@@ -33,6 +34,10 @@ class VolumesViewModel : ViewModel() {
 
     private var list : ArrayList<VolumeDto.Volume> = arrayListOf()
 
+    private var localQuery: String = "android"
+
+    private var isNewSearch: Boolean = false
+
     init {
         DaggerAppComponent.create().inject(this)
         getVolumes()
@@ -40,15 +45,44 @@ class VolumesViewModel : ViewModel() {
 
     fun getVolumes() {
         viewModelScope.launch {
-           homeUiState = HomeUiState.Loading
-           homeUiState = try {
+           uiState = ListUiState.Loading
+           uiState = try {
                list = repository.fetchVolumesFromApi()
-               val limit = checkVolumesLimit(list.size)
-               HomeUiState.Success(list, false, limit)
+
+               val count = list.size
+               val uniqueList = filterUniqueVolumes(list)
+               val difference = count.minus(uniqueList.size)
+               val limit = checkVolumesLimit(uniqueList.size, difference)
+
+               ListUiState.Success(uniqueList, false, limit)
             } catch (e: IOException) {
-                HomeUiState.Error
+               ListUiState.Retry
             } catch (e: HttpException) {
-                HomeUiState.Error
+               ListUiState.Retry
+            }
+        }
+    }
+
+    fun searchVolumes(query: String) {
+        viewModelScope.launch {
+            isNewSearch = true
+            uiState = ListUiState.Success(emptyList(), true)
+            uiState = try {
+                localQuery = query
+                list.clear()
+                list = repository.fetchVolumesFromApi(query)
+
+                val count = list.size
+                val uniqueList = filterUniqueVolumes(list)
+                val difference = count.minus(uniqueList.size)
+                val limit = checkVolumesLimit(uniqueList.size, difference)
+
+                isNewSearch = false
+                ListUiState.Success(uniqueList, false, limit)
+            } catch (e: IOException) {
+                ListUiState.Retry
+            } catch (e: HttpException) {
+                ListUiState.Retry
             }
         }
     }
@@ -59,28 +93,40 @@ class VolumesViewModel : ViewModel() {
     }
 
     fun getMoreVolumes(){
+        if(isNewSearch)
+            return
+
         viewModelScope.launch {
-            homeUiState = HomeUiState.Success(list, true)
-            homeUiState = try {
-                val newVolumes = repository.fetchVolumesFromApi(startIndex = list.count())
+            uiState = ListUiState.Success(list, true)
+            uiState = try {
+                val newVolumes = repository.fetchVolumesFromApi(localQuery, list.size)
 
                 list.addAll(newVolumes)
 
-                val newList = arrayListOf<VolumeDto.Volume>()
-                newList.addAll(list)
-
-                 val uniqueVolumes = newList.distinctBy { it.id }
-                 list = ArrayList(uniqueVolumes)
-
+                val uniqueList = filterUniqueVolumes(list)
                 val limit = checkVolumesLimit(newVolumes.size)
-                HomeUiState.Success(list, false, limit)
+
+                ListUiState.Success(uniqueList, false, limit)
             } catch (e: IOException) {
-                HomeUiState.Error
+                ListUiState.Retry
             } catch (e: HttpException) {
-                HomeUiState.Error
+                ListUiState.Retry
             }
         }
     }
 
-    private fun checkVolumesLimit(count: Int) = count < API_MAX_RESULTS.toInt()
+    private fun filterUniqueVolumes(list: ArrayList<VolumeDto.Volume>) : ArrayList<VolumeDto.Volume>{
+        val newList = arrayListOf<VolumeDto.Volume>()
+        newList.addAll(list)
+
+        val uniqueVolumes = newList.distinctBy { it.id }
+        return ArrayList(uniqueVolumes)
+    }
+
+    /*
+    api some times returns repeated id's on first query
+    after filtering to unique id's the count will always be lower than 'API_MAX_RESULTS'
+    this difference param ensures that we can still load more items on this occasions
+    */
+    private fun checkVolumesLimit(count: Int, difference: Int = 0) = count < (API_MAX_RESULTS.toInt().minus(difference))
 }

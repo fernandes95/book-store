@@ -29,8 +29,9 @@ fun VolumesNavHost(
         composable(route = Home.route) {
             val vm: VolumesViewModel = viewModel()
             HomeScreen(
-                uiState = vm.homeUiState,
+                uiState = vm.uiState,
                 volumeSelected = { volumeId -> navController.navigateToDetail(volumeId) },
+                onSearchAction = vm::searchVolumes,
                 retryAction = vm::getVolumes,
                 onLoadMore = vm::getMoreVolumes
             )
@@ -38,7 +39,7 @@ fun VolumesNavHost(
         composable(route = Favorites.route) {
             val vm: FavoritesViewModel = viewModel()
             FavoritesScreen(
-                uiState = vm.favUiState,
+                uiState = vm.uiState,
                 volumeSelected = { volumeId -> navController.navigateToDetail(volumeId) },
                 retryAction = vm::getFavorites
             )
@@ -49,12 +50,12 @@ fun VolumesNavHost(
         ) { navBackStackEntry ->
             val volumeId = navBackStackEntry.arguments?.getString(Detail.volumeIdArg)!!
             val vm: VolumeDetailViewModel = viewModel()
-            if(vm.detailUiState is DetailUiState.Loading)//TODO PRETTY SURE THIS IS THE WRONG WAY TO DO IT
+            if(vm.uiState is DetailUiState.Loading)//TODO PRETTY SURE THIS IS THE WRONG WAY TO DO IT
                 (vm::getVolume)(volumeId)
             val context = LocalContext.current
 
             DetailScreen(
-                uiState = vm.detailUiState,
+                uiState = vm.uiState,
                 context = context,
                 favAction = vm::setFavorite,
                 retryAction = { (vm::getVolume)(volumeId) }//TODO NOT SURE IF THIS WORKS,

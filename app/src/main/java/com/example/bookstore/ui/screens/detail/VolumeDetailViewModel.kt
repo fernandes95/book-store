@@ -25,7 +25,7 @@ sealed interface DetailUiState {
 
 class VolumeDetailViewModel : ViewModel() {
 
-    var detailUiState: DetailUiState by mutableStateOf(DetailUiState.Loading)
+    var uiState: DetailUiState by mutableStateOf(DetailUiState.Loading)
         private set
 
     @Inject
@@ -46,8 +46,8 @@ class VolumeDetailViewModel : ViewModel() {
     }
 
     fun getVolume(volumeId : String) = viewModelScope.launch {
-            detailUiState = DetailUiState.Loading
-            detailUiState = try {
+            uiState = DetailUiState.Loading
+            uiState = try {
                 volume = repository.fetchVolumeFromApi(volumeId)
                 volumeFromDb = repository.fetchFavoriteFromDatabase(volumeId).first()
                 DetailUiState.Success(volume, volumeFromDb != null)
@@ -67,7 +67,7 @@ class VolumeDetailViewModel : ViewModel() {
                 repository.insertFavoriteToDatabase(volume.toFavorite())
             }
 
-            detailUiState = try {
+            uiState = try {
                 volumeFromDb = repository.fetchFavoriteFromDatabase(volume.id).first()
                 DetailUiState.Success(volume, volumeFromDb != null)
             } catch (e: IOException) {

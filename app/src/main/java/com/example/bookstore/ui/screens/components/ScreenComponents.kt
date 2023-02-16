@@ -1,16 +1,20 @@
 package com.example.bookstore.ui.screens.components
 
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -21,6 +25,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.bookstore.R
 import com.example.bookstore.data.models.dto.VolumeDto
+import com.example.bookstore.ui.screens.home.ListUiState
 import com.example.bookstore.ui.screens.theme.VolumesTheme
 
 @Composable
@@ -63,15 +68,20 @@ fun VolumeCard(
 }
 
 @Composable
+fun LoadingOverlay(modifier: Modifier = Modifier){
+    LoadingScreen(modifier = modifier
+        .background(Color.White.copy(alpha = 0.5f)))
+}
+
+@Composable
 fun LoadingScreen(modifier: Modifier = Modifier) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier.fillMaxSize()
     ) {
-        Image(
-            modifier = Modifier.size(200.dp),
-            painter = painterResource(R.drawable.ic_loading),
-            contentDescription = null
+        CircularProgressIndicator(
+            color = MaterialTheme.colors.secondary,
+            strokeWidth = 4.dp
         )
     }
 }
@@ -86,6 +96,29 @@ fun RetryScreen(title: String, retryAction: () -> Unit, modifier: Modifier = Mod
         Text(title)
         Button(onClick = retryAction) {
             Text(stringResource(R.string.retry))
+        }
+    }
+}
+@Composable
+fun VolumesList(
+    uiState: ListUiState.Success,
+    volumeSelected: (String) -> Unit,
+    listState: LazyListState,
+    modifier: Modifier = Modifier
+){
+    LazyColumn(
+        state = listState,
+        modifier = modifier
+            .fillMaxWidth()
+            .scrollable(rememberScrollState(), Orientation.Vertical),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(16.dp),
+    ) {
+        items(
+            items = uiState.volumes,
+            key = { volume -> volume.id}
+        ) { volume ->
+            VolumeCard(volume = volume, onClicked = volumeSelected)
         }
     }
 }
