@@ -15,6 +15,9 @@ import com.example.bookstore.ui.screens.favorites.FavoritesScreen
 import com.example.bookstore.ui.screens.favorites.FavoritesViewModel
 import com.example.bookstore.ui.screens.home.HomeScreen
 import com.example.bookstore.ui.screens.home.VolumesViewModel
+import com.example.bookstore.ui.screens.landing.LandingScreen
+import com.example.bookstore.ui.screens.landing.LandingUiState
+import com.example.bookstore.ui.screens.landing.LandingViewModel
 
 @Composable
 fun VolumesNavHost(
@@ -23,9 +26,22 @@ fun VolumesNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Home.route,
+        startDestination = Landing.route,
         modifier = modifier
     ) {
+        composable(route = Landing.route) {
+            val vm: LandingViewModel = viewModel()
+            val context = LocalContext.current
+
+            if(vm.uiState is LandingUiState.Loading)//TODO PRETTY SURE THIS IS THE WRONG WAY TO DO IT
+                (vm::checkSignedInUser)(context)
+
+            LandingScreen(
+                navController = navController,
+                uiState = vm.uiState,
+                offlineAction = { navController.navigateSingleTopTo(Home.route) },
+            )
+        }
         composable(route = Home.route) {
             val vm: VolumesViewModel = viewModel()
             HomeScreen(
@@ -72,7 +88,8 @@ fun NavHostController.navigateSingleTopTo(route: String) =
         popUpTo(
             this@navigateSingleTopTo.graph.findStartDestination().id
         ) {
-            saveState = true
+//            saveState = true
+            inclusive = true
         }
         // Avoid multiple copies of the same destination when
         // reselecting the same item

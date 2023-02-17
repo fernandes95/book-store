@@ -133,4 +133,7 @@ dependencies {
 
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
+
+    //Google
+    implementation 'com.google.android.gms:play-services-auth:20.4.1'
 }

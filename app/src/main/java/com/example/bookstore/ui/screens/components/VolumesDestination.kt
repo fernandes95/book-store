@@ -12,6 +12,11 @@ interface VolumesDestination {
     val route: String
 }
 
+object Landing : VolumesDestination {
+    override val icon = null
+    override val route = "landing"
+}
+
 object Home : VolumesDestination {
     override val icon = Icons.Filled.Home
     override val route = "home"
@@ -32,3 +37,4 @@ object Detail : VolumesDestination{
 
 // Screens to be displayed in the bottom
 val volumesTabRowScreens = listOf(Home, Favorites)
+val bottomNavRoutes = listOf(Home.route, Favorites.route)
