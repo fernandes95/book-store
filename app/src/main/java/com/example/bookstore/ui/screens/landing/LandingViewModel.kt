@@ -29,26 +29,13 @@ class LandingViewModel: ViewModel() {
         DaggerAppComponent.create().inject(this)
     }
 
-   /* fun fetchSignInUser(email: String?, name: String?) {
-        viewModelScope.launch {
-            uiState = LandingUiState.Loading
-            uiState = try {
-                val user = GoogleUser(name, email)
-                LandingUiState.Success(user)
-            } catch (e: IOException) {
-                LandingUiState.Retry
-            } catch (e: HttpException) {
-                LandingUiState.Retry
-            }
-        }
-    }*/
-
     fun checkSignedInUser(applicationContext: Context) {
         viewModelScope.launch {
             uiState = LandingUiState.Loading
             uiState = try {
                 var user: GoogleUser? = null
                 val gsa = GoogleSignIn.getLastSignedInAccount(applicationContext)
+
                 if (gsa != null) {
                     user = GoogleUser(
                         email = gsa.email,

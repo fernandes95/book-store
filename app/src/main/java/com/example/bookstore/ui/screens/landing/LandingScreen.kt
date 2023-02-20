@@ -67,7 +67,7 @@ fun LandingPage(
 {
     Column(
         modifier
-            .padding(start = 20.dp, end = 20.dp)
+            .padding(20.dp)
             .fillMaxSize(),
         verticalArrangement = Arrangement.Center,
     )

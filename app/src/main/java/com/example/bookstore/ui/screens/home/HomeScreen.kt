@@ -1,45 +1,35 @@
 package com.example.bookstore.ui.screens.home
 
+import android.content.Context
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.bookstore.R
-import com.example.bookstore.data.models.toVolume
-import com.example.bookstore.data.room.FavoriteEntity
-import com.example.bookstore.ui.screens.components.*
-import com.example.bookstore.ui.screens.theme.VolumesTheme
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
+import com.example.bookstore.ui.screens.components.LoadingScreen
+import com.example.bookstore.ui.screens.components.RetryScreen
 
 @Composable
 fun HomeScreen(
     uiState: HomeUiState,
+    logoutAction: () -> Unit,
+    loggedOutAction: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     when (uiState) {
         is HomeUiState.Loading -> LoadingScreen(modifier)
-        is HomeUiState.Success -> Homepage(uiState, modifier)
+        is HomeUiState.Success -> Homepage(uiState, logoutAction, modifier)
+        is HomeUiState.LoggedOut -> loggedOutAction.invoke()
         else -> RetryScreen(stringResource(R.string.failed_loading), {}, modifier)
     }
 }
@@ -47,10 +37,33 @@ fun HomeScreen(
 @Composable
 fun Homepage(
     uiState: HomeUiState,
+    logoutAction: () -> Unit,
     modifier: Modifier = Modifier
 ){
-    Column(modifier) {
-        Text(text = (uiState as HomeUiState.Success).username)
+    Column(modifier =
+    modifier
+        .fillMaxSize()
+        .padding(20.dp)
+    ) {
+        if((uiState as HomeUiState.Success).username != null) {
+            Row(
+                modifier = modifier
+                    .fillMaxWidth(),
+                verticalAlignment = CenterVertically,
+            ) {
+                Text(
+                    text = uiState.username!!,
+                    style = MaterialTheme.typography.h4,
+                    modifier = Modifier.weight(1.0f)
+                )
+                IconButton(onClick = logoutAction ) {
+                    Icon(
+                        imageVector = Icons.Filled.Logout,
+                        contentDescription = null,
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -58,6 +71,9 @@ fun Homepage(
 @Preview(showBackground = true)
 @Composable
 fun SearchViewPreview() {
-//    Homepage(Hom)
+    val uiState = HomeUiState.Success("username")
+    MaterialTheme{
+        Homepage(uiState, {})
+    }
 }
 

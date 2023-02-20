@@ -14,6 +14,7 @@ import com.example.bookstore.ui.screens.detail.VolumeDetailViewModel
 import com.example.bookstore.ui.screens.favorites.FavoritesScreen
 import com.example.bookstore.ui.screens.favorites.FavoritesViewModel
 import com.example.bookstore.ui.screens.home.HomeScreen
+import com.example.bookstore.ui.screens.home.HomeUiState
 import com.example.bookstore.ui.screens.home.HomeViewModel
 import com.example.bookstore.ui.screens.landing.LandingScreen
 import com.example.bookstore.ui.screens.landing.LandingUiState
@@ -46,8 +47,15 @@ fun VolumesNavHost(
         }
         composable(route = Home.route) {
             val vm: HomeViewModel = viewModel()
+            val context = LocalContext.current
+
+            if(vm.uiState is HomeUiState.Loading)//TODO PRETTY SURE THIS IS THE WRONG WAY TO DO IT
+                (vm::getUserLogged)(context)
+
             HomeScreen(
                 uiState = vm.uiState,
+                logoutAction = { (vm::logout)(context) },
+                loggedOutAction = { navController.navigateSingleTopTo(Landing.route) }
             )
         }
         composable(route = Search.route) {
