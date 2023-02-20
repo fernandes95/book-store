@@ -5,10 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.bookstore.data.models.dto.VolumeDto
 import com.example.bookstore.data.models.toVolume
 import com.example.bookstore.data.repositories.OfflineRepository
-import com.example.bookstore.data.repositories.VolumesRepository
 import com.example.bookstore.data.room.FavoriteEntity
 import com.example.bookstore.di.DaggerAppComponent
-import com.example.bookstore.ui.screens.home.ListUiState
+import com.example.bookstore.ui.screens.search.ListUiState
 import com.example.bookstore.utils.TIMEOUT_MILLIS
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.flow.SharingStarted

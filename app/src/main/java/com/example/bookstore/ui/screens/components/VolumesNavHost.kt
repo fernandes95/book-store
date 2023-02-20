@@ -14,10 +14,12 @@ import com.example.bookstore.ui.screens.detail.VolumeDetailViewModel
 import com.example.bookstore.ui.screens.favorites.FavoritesScreen
 import com.example.bookstore.ui.screens.favorites.FavoritesViewModel
 import com.example.bookstore.ui.screens.home.HomeScreen
-import com.example.bookstore.ui.screens.home.VolumesViewModel
+import com.example.bookstore.ui.screens.home.HomeViewModel
 import com.example.bookstore.ui.screens.landing.LandingScreen
 import com.example.bookstore.ui.screens.landing.LandingUiState
 import com.example.bookstore.ui.screens.landing.LandingViewModel
+import com.example.bookstore.ui.screens.search.SearchScreen
+import com.example.bookstore.ui.screens.search.SearchViewModel
 
 @Composable
 fun VolumesNavHost(
@@ -43,8 +45,14 @@ fun VolumesNavHost(
             )
         }
         composable(route = Home.route) {
-            val vm: VolumesViewModel = viewModel()
+            val vm: HomeViewModel = viewModel()
             HomeScreen(
+                uiState = vm.uiState,
+            )
+        }
+        composable(route = Search.route) {
+            val vm: SearchViewModel = viewModel()
+            SearchScreen(
                 uiState = vm.uiState,
                 volumeSelected = { volumeId -> navController.navigateToDetail(volumeId) },
                 onSearchAction = vm::searchVolumes,

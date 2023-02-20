@@ -1,4 +1,4 @@
-package com.example.bookstore.ui.screens.home
+package com.example.bookstore.ui.screens.search
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,7 +22,7 @@ sealed interface ListUiState {
     object Loading : ListUiState
 }
 
-class VolumesViewModel : ViewModel() {
+class SearchViewModel : ViewModel() {
 
     var uiState: ListUiState by mutableStateOf(ListUiState.Loading)
         private set
@@ -45,20 +45,20 @@ class VolumesViewModel : ViewModel() {
 
     fun getVolumes() {
         viewModelScope.launch {
-           uiState = ListUiState.Loading
-           uiState = try {
-               list = repository.fetchVolumesFromApi()
+            uiState = ListUiState.Loading
+            uiState = try {
+                list = repository.fetchVolumesFromApi()
 
-               val count = list.size
-               val uniqueList = filterUniqueVolumes(list)
-               val difference = count.minus(uniqueList.size)
-               val limit = checkVolumesLimit(uniqueList.size, difference)
+                val count = list.size
+                val uniqueList = filterUniqueVolumes(list)
+                val difference = count.minus(uniqueList.size)
+                val limit = checkVolumesLimit(uniqueList.size, difference)
 
-               ListUiState.Success(uniqueList, false, limit)
+                ListUiState.Success(uniqueList, false, limit)
             } catch (e: IOException) {
-               ListUiState.Retry
+                ListUiState.Retry
             } catch (e: HttpException) {
-               ListUiState.Retry
+                ListUiState.Retry
             }
         }
     }

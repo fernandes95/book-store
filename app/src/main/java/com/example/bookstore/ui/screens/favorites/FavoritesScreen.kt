@@ -10,7 +10,7 @@ import com.example.bookstore.R
 import com.example.bookstore.ui.screens.components.LoadingScreen
 import com.example.bookstore.ui.screens.components.RetryScreen
 import com.example.bookstore.ui.screens.components.VolumesList
-import com.example.bookstore.ui.screens.home.ListUiState
+import com.example.bookstore.ui.screens.search.ListUiState
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable

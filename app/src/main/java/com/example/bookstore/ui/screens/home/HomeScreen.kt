@@ -5,10 +5,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
@@ -37,154 +34,30 @@ import kotlinx.coroutines.flow.filter
 
 @Composable
 fun HomeScreen(
-    uiState: ListUiState,
-    volumeSelected: (String) -> Unit,
-    onSearchAction: (String) -> Unit,
-    retryAction: () -> Unit,
-    onLoadMore: () -> Unit,
+    uiState: HomeUiState,
     modifier: Modifier = Modifier
 ) {
     when (uiState) {
-        is ListUiState.Loading -> LoadingScreen(modifier)
-        is ListUiState.Success -> VolumesListScreen(uiState, volumeSelected, onSearchAction, onLoadMore, modifier)
-        else -> RetryScreen(stringResource(R.string.failed_loading), retryAction, modifier)
+        is HomeUiState.Loading -> LoadingScreen(modifier)
+        is HomeUiState.Success -> Homepage(uiState, modifier)
+        else -> RetryScreen(stringResource(R.string.failed_loading), {}, modifier)
     }
 }
 
 @Composable
-fun InfiniteListHandler(
-    listState: LazyListState,
-    isOnLimit: Boolean,
-    buffer: Int = 2,
-    onLoadMore: () -> Unit
-) {
-    if(isOnLimit)
-        return
-
-    val loadMore = remember {
-        derivedStateOf {
-            val layoutInfo = listState.layoutInfo
-            val totalItemsNumber = layoutInfo.totalItemsCount
-            val lastVisibleItemIndex = (layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0).plus(1)
-
-            lastVisibleItemIndex > (totalItemsNumber.minus(buffer))
-        }
-    }
-
-    LaunchedEffect(loadMore) {
-        snapshotFlow { loadMore.value }
-            .distinctUntilChanged()
-            .filter { it }
-            .collect {
-                onLoadMore()
-            }
+fun Homepage(
+    uiState: HomeUiState,
+    modifier: Modifier = Modifier
+){
+    Column(modifier) {
+        Text(text = (uiState as HomeUiState.Success).username)
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-fun SearchView(searchAction: (String) -> Unit) {
-    val state = rememberSaveable { mutableStateOf("") }
-    val focused = rememberSaveable { mutableStateOf(false) }
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val focusManager = LocalFocusManager.current
-
-    TextField(
-        value = state.value,
-        onValueChange = { value ->
-            state.value = value
-            focused.value = value.isNotEmpty()
-        },
-        modifier = Modifier.fillMaxWidth(),
-        textStyle = TextStyle(color = Color.White, fontSize = 18.sp),
-        leadingIcon = {
-            Icon(
-                Icons.Default.Search,
-                contentDescription = "",
-                modifier = Modifier
-                    .padding(15.dp)
-                    .size(24.dp)
-            )
-        },
-        trailingIcon = {
-            if (focused.value) {
-                IconButton(onClick = { state.value = "" }) {
-                    Icon(
-                        Icons.Default.Close,
-                        contentDescription = "",
-                        modifier = Modifier
-                            .padding(15.dp)
-                            .size(24.dp)
-                    )
-                }
-            }
-        },
-        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(onSearch = {
-            searchAction(state.value)
-            keyboardController?.hide()
-            focusManager.clearFocus()
-            focused.value = false
-        }),
-        singleLine = true,
-        shape = RectangleShape, // The TextFiled has rounded corners top left and right by default
-        colors = TextFieldDefaults.textFieldColors(
-            textColor = Color.White,
-            cursorColor = Color.White,
-            leadingIconColor = Color.White,
-            trailingIconColor = Color.White,
-            backgroundColor = colorResource(id = R.color.purple_700),
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent
-        )
-    )
-}
-
-@Composable
-fun VolumesListScreen(
-    uiState: ListUiState.Success,
-    volumeSelected: (String) -> Unit,
-    onSearchAction: (String) -> Unit,
-    onLoadMore: () -> Unit,
-    modifier: Modifier = Modifier)
-{
-    Box(Modifier.fillMaxSize()) {
-        val listState = rememberLazyListState()
-
-        Column {
-            SearchView(onSearchAction)
-            VolumesList(uiState, volumeSelected, listState, modifier)
-        }
-
-        if(uiState.isLoading) {
-            LoadingOverlay()
-        }
-
-        InfiniteListHandler(listState = listState, isOnLimit = uiState.isOnLimit) {
-            onLoadMore()
-        }
-    }
-}
 
 @Preview(showBackground = true)
 @Composable
 fun SearchViewPreview() {
-    SearchView {}
+//    Homepage(Hom)
 }
 
-@Preview(showBackground = true)
-@Composable
-fun ListScreenPreview() {
-    VolumesTheme {
-        val mockData = List(10) {
-            FavoriteEntity(it, "$it", "Lorem Ipsum - $it", "").toVolume()
-        }
-        val uiStateMock : ListUiState.Success = ListUiState.Success(
-            volumes = mockData,
-            isLoading = true,
-            isOnLimit = false
-        )
-        VolumesListScreen(uiStateMock, {}, {}, {})
-    }
-}

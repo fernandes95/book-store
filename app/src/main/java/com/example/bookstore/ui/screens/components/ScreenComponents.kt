@@ -25,7 +25,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.bookstore.R
 import com.example.bookstore.data.models.dto.VolumeDto
-import com.example.bookstore.ui.screens.home.ListUiState
+import com.example.bookstore.ui.screens.home.HomeUiState
+import com.example.bookstore.ui.screens.search.ListUiState
 import com.example.bookstore.ui.screens.theme.VolumesTheme
 
 @Composable
