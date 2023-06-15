@@ -3,6 +3,7 @@ package com.example.bookstore.ui.screens.detail
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bookstore.data.models.dto.VolumeDto
@@ -11,6 +12,7 @@ import com.example.bookstore.data.repositories.OfflineRepository
 import com.example.bookstore.data.repositories.VolumesRepository
 import com.example.bookstore.data.room.FavoriteEntity
 import com.example.bookstore.di.DaggerAppComponent
+import com.example.bookstore.ui.screens.components.Detail
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -24,7 +26,11 @@ sealed interface DetailUiState {
     object Loading : DetailUiState
 }
 
-class VolumeDetailViewModel : ViewModel() {
+class VolumeDetailViewModel (
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
+
+    private val volumeId: String = savedStateHandle[Detail.volumeIdArg]!!
 
     var uiState: DetailUiState by mutableStateOf(DetailUiState.Loading)
         private set
@@ -42,6 +48,10 @@ class VolumeDetailViewModel : ViewModel() {
 
     init {
         DaggerAppComponent.create().inject(this)
+
+        if(volumeId.isNotBlank()) {
+            getVolume()
+        }
     }
 
     override fun onCleared() {
@@ -49,7 +59,7 @@ class VolumeDetailViewModel : ViewModel() {
         compositeDisposable.clear()
     }
 
-    fun getVolume(volumeId : String) = viewModelScope.launch {
+    fun getVolume() = viewModelScope.launch {
             uiState = DetailUiState.Loading
             uiState = try {
                 volume = repository.fetchVolumeFromApi(volumeId)

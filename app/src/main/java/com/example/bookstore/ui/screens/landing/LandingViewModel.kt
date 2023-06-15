@@ -1,11 +1,11 @@
 package com.example.bookstore.ui.screens.landing
 
-import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.bookstore.VolumesApplication
 import com.example.bookstore.data.models.dto.GoogleUser
 import com.example.bookstore.di.DaggerAppComponent
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -27,14 +27,15 @@ class LandingViewModel: ViewModel() {
 
     init {
         DaggerAppComponent.create().inject(this)
+        checkSignedInUser()
     }
 
-    fun checkSignedInUser(applicationContext: Context) {
+    private fun checkSignedInUser() {
         viewModelScope.launch {
             uiState = LandingUiState.Loading
             uiState = try {
                 var user: GoogleUser? = null
-                val gsa = GoogleSignIn.getLastSignedInAccount(applicationContext)
+                val gsa = GoogleSignIn.getLastSignedInAccount(VolumesApplication.instance.applicationContext)
 
                 if (gsa != null) {
                     user = GoogleUser(

@@ -14,7 +14,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BookStore"
         android:usesCleartextTraffic="true"
-        tools:targetApi="31">
+        android:enableOnBackInvokedCallback="true"
+        tools:targetApi="33">
         <activity
             android:name=".MainActivity"
             android:exported="true"

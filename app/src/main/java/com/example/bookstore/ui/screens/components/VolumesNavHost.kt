@@ -9,15 +9,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.bookstore.ui.screens.detail.DetailScreen
-import com.example.bookstore.ui.screens.detail.DetailUiState
 import com.example.bookstore.ui.screens.detail.VolumeDetailViewModel
 import com.example.bookstore.ui.screens.favorites.FavoritesScreen
 import com.example.bookstore.ui.screens.favorites.FavoritesViewModel
 import com.example.bookstore.ui.screens.home.HomeScreen
-import com.example.bookstore.ui.screens.home.HomeUiState
 import com.example.bookstore.ui.screens.home.HomeViewModel
 import com.example.bookstore.ui.screens.landing.LandingScreen
-import com.example.bookstore.ui.screens.landing.LandingUiState
 import com.example.bookstore.ui.screens.landing.LandingViewModel
 import com.example.bookstore.ui.screens.search.SearchScreen
 import com.example.bookstore.ui.screens.search.SearchViewModel
@@ -34,11 +31,6 @@ fun VolumesNavHost(
     ) {
         composable(route = Landing.route) {
             val vm: LandingViewModel = viewModel()
-            val context = LocalContext.current
-
-            if(vm.uiState is LandingUiState.Loading)//TODO PRETTY SURE THIS IS THE WRONG WAY TO DO IT
-                (vm::checkSignedInUser)(context)
-
             LandingScreen(
                 navController = navController,
                 uiState = vm.uiState,
@@ -47,14 +39,9 @@ fun VolumesNavHost(
         }
         composable(route = Home.route) {
             val vm: HomeViewModel = viewModel()
-            val context = LocalContext.current
-
-            if(vm.uiState is HomeUiState.Loading)//TODO PRETTY SURE THIS IS THE WRONG WAY TO DO IT
-                (vm::getUserLogged)(context)
-
             HomeScreen(
                 uiState = vm.uiState,
-                logoutAction = { (vm::logout)(context) },
+                logoutAction = vm::logout,
                 loggedOutAction = { navController.navigateSingleTopTo(Landing.route) }
             )
         }
@@ -79,18 +66,13 @@ fun VolumesNavHost(
         composable(
             route = Detail.routeWithArgs,
             arguments = Detail.arguments,
-        ) { navBackStackEntry ->
-            val volumeId = navBackStackEntry.arguments?.getString(Detail.volumeIdArg)!!
+        ) {
             val vm: VolumeDetailViewModel = viewModel()
-            if(vm.uiState is DetailUiState.Loading)//TODO PRETTY SURE THIS IS THE WRONG WAY TO DO IT
-                (vm::getVolume)(volumeId)
-            val context = LocalContext.current
-
             DetailScreen(
                 uiState = vm.uiState,
-                context = context,
+                context = LocalContext.current,
                 favAction = vm::setFavorite,
-                retryAction = { (vm::getVolume)(volumeId) }//TODO NOT SURE IF THIS WORKS,
+                retryAction = vm::getVolume
                 )
         }
     }
