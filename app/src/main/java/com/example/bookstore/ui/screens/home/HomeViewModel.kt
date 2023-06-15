@@ -5,12 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.bookstore.VolumesApplication
+import com.example.bookstore.data.repositories.GoogleRepository
 import com.example.bookstore.data.repositories.VolumesRepository
 import com.example.bookstore.di.DaggerAppComponent
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
@@ -33,6 +30,9 @@ class HomeViewModel : ViewModel() {
     @Inject
     lateinit var repository: VolumesRepository
 
+    @Inject
+    lateinit var googleRepository: GoogleRepository
+
     private val compositeDisposable by lazy { CompositeDisposable() }
 
     init {
@@ -49,7 +49,7 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch {
             uiState = HomeUiState.Loading
             uiState = try {
-                val userLogged = getUser()
+                val userLogged = googleRepository.getUser()
                 HomeUiState.Success(userLogged?.displayName)
             } catch (e: IOException) {
                 HomeUiState.Retry
@@ -63,28 +63,16 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch {
             uiState = HomeUiState.Loading
             uiState = try {
-                val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestEmail()
-                    .build()
-
-                val client = GoogleSignIn.getClient(VolumesApplication.instance.applicationContext, gso)
-                client.signOut()
-
-                val userLogged = getUser()
-
-                if(userLogged == null)
+                val userLogged = googleRepository.logoutUser()
+                if(userLogged)
                     HomeUiState.LoggedOut
                 else
-                    HomeUiState.Success(userLogged.displayName)
+                    HomeUiState.Success(googleRepository.googleUser.displayName)
             } catch (e: IOException) {
                 HomeUiState.Retry
             } catch (e: HttpException) {
                 HomeUiState.Retry
             }
         }
-    }
-
-    private fun getUser() : GoogleSignInAccount? {
-        return GoogleSignIn.getLastSignedInAccount(VolumesApplication.instance.applicationContext)
     }
 }

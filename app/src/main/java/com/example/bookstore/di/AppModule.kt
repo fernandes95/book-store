@@ -2,6 +2,7 @@ package com.example.bookstore.di
 
 import com.example.bookstore.data.api.ApiService
 import com.example.bookstore.data.api.VolumeApi
+import com.example.bookstore.data.repositories.GoogleRepository
 import com.example.bookstore.data.repositories.OfflineRepository
 import com.example.bookstore.data.repositories.VolumesRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -32,4 +33,7 @@ class AppModule {
 
     @Provides
     fun provideOfflineRepository() = OfflineRepository()
+
+    @Provides
+    fun provideGoogleRepository() = GoogleRepository()
 }

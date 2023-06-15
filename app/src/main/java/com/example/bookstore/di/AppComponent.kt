@@ -1,5 +1,6 @@
 package com.example.bookstore.di
 
+import com.example.bookstore.data.repositories.GoogleRepository
 import com.example.bookstore.data.repositories.OfflineRepository
 import com.example.bookstore.ui.screens.detail.VolumeDetailViewModel
 import com.example.bookstore.ui.screens.home.HomeViewModel
@@ -16,6 +17,8 @@ interface AppComponent {
     fun inject(repository: VolumesRepository)
 
     fun inject(repository: OfflineRepository)
+
+    fun inject(repository: GoogleRepository)
 
     fun inject(viewModel: HomeViewModel)
 
