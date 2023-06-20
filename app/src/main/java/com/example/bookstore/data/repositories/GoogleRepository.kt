@@ -5,10 +5,13 @@ import com.example.bookstore.di.DaggerAppComponent
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 
 class GoogleRepository {
 
-    lateinit var googleUser: GoogleSignInAccount
+    var googleUser: GoogleSignInAccount? = null
 
     init {
         DaggerAppComponent.create().inject(this)
@@ -21,24 +24,25 @@ class GoogleRepository {
         if (gsa != null) {
             googleUser = gsa
             user = gsa
-            /*user = GoogleUser(
-                email = gsa.email,
-                name = gsa.displayName,
-            )*/
         }
 
         return user
     }
 
-    fun logoutUser(): Boolean {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestEmail()
-            .build()
+     fun logoutUser() : Flow<Boolean> = callbackFlow {
+        val client = GoogleSignIn.getClient(
+          VolumesApplication.instance.applicationContext,
+          GoogleSignInOptions.DEFAULT_SIGN_IN
+        )
 
-        val client = GoogleSignIn.getClient(VolumesApplication.instance.applicationContext, gso)
-        client.signOut()
+        client.signOut().addOnCompleteListener{
+          if(it.isComplete) {
+            googleUser = null
+            this.trySend(true).isSuccess
+          }
+        }
 
-        return getUser() == null
+       awaitClose()
     }
 
 }

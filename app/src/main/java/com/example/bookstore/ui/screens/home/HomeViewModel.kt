@@ -19,7 +19,6 @@ sealed interface HomeUiState {
     object LoggedOut : HomeUiState
     object Retry : HomeUiState
     object Loading : HomeUiState
-
 }
 
 class HomeViewModel : ViewModel() {
@@ -45,7 +44,7 @@ class HomeViewModel : ViewModel() {
         compositeDisposable.clear()
     }
 
-    fun getUserLogged() {
+    private fun getUserLogged() {
         viewModelScope.launch {
             uiState = HomeUiState.Loading
             uiState = try {
@@ -62,12 +61,15 @@ class HomeViewModel : ViewModel() {
     fun logout(){
         viewModelScope.launch {
             uiState = HomeUiState.Loading
-            uiState = try {
-                val userLogged = googleRepository.logoutUser()
-                if(userLogged)
-                    HomeUiState.LoggedOut
-                else
-                    HomeUiState.Success(googleRepository.googleUser.displayName)
+            try {
+                val userLoggedOut = googleRepository.logoutUser()
+                userLoggedOut.collect{
+                    uiState = if(it) {
+                        HomeUiState.LoggedOut
+                    } else {
+                        HomeUiState.Success(googleRepository.googleUser?.displayName)
+                    }
+                }
             } catch (e: IOException) {
                 HomeUiState.Retry
             } catch (e: HttpException) {

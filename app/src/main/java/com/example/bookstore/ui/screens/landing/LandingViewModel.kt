@@ -5,16 +5,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.bookstore.VolumesApplication
-import com.example.bookstore.data.models.dto.GoogleUser
+import com.example.bookstore.data.repositories.GoogleRepository
 import com.example.bookstore.di.DaggerAppComponent
-import com.google.android.gms.auth.api.signin.GoogleSignIn
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
+import javax.inject.Inject
 
 sealed interface LandingUiState {
-    data class Success(val user: GoogleUser?) : LandingUiState
+    object Success : LandingUiState
     object NoAccount : LandingUiState
     object Loading : LandingUiState
     object Retry : LandingUiState
@@ -25,6 +24,9 @@ class LandingViewModel: ViewModel() {
     var uiState: LandingUiState by mutableStateOf(LandingUiState.Loading)
         private set
 
+    @Inject
+    lateinit var googleRepository: GoogleRepository
+
     init {
         DaggerAppComponent.create().inject(this)
         checkSignedInUser()
@@ -34,17 +36,9 @@ class LandingViewModel: ViewModel() {
         viewModelScope.launch {
             uiState = LandingUiState.Loading
             uiState = try {
-                var user: GoogleUser? = null
-                val gsa = GoogleSignIn.getLastSignedInAccount(VolumesApplication.instance.applicationContext)
-
-                if (gsa != null) {
-                    user = GoogleUser(
-                        email = gsa.email,
-                        name = gsa.displayName,
-                    )
-                }
+                val user = googleRepository.getUser()
                 if(user != null)
-                    LandingUiState.Success(user)
+                    LandingUiState.Success
                 else
                     LandingUiState.NoAccount
             } catch (e: IOException) {

@@ -35,14 +35,13 @@ import com.example.bookstore.ui.screens.components.RetryScreen
 @Composable
 fun DetailScreen(
     uiState: DetailUiState,
-    context: Context,
     favAction: () -> Unit,
     retryAction: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     when (uiState) {
         is DetailUiState.Loading -> LoadingScreen(modifier)
-        is DetailUiState.Success -> DetailPage(uiState.volume, uiState.isFav, favAction, context, modifier)
+        is DetailUiState.Success -> DetailPage(uiState.volume, uiState.isFav, favAction, modifier)
         else -> RetryScreen(stringResource(R.string.failed_loading), retryAction, modifier)
     }
 }
@@ -52,9 +51,9 @@ fun DetailPage(
     volume: VolumeDto.Volume,
     isFav: Boolean,
     favAction: () -> Unit,
-    context: Context,
     modifier: Modifier
 ){
+    val context = LocalContext.current
     Column(
         modifier
             .padding(start = 20.dp, end = 20.dp)
@@ -79,7 +78,7 @@ fun DetailPage(
                 .width(150.dp)
                 .padding(top = 20.dp, bottom = 10.dp)
                 .align(Alignment.CenterHorizontally),
-            model = ImageRequest.Builder(context = LocalContext.current)
+            model = ImageRequest.Builder(context = context)
                 .data(volume.volumeInfo?.imageLinks?.thumbnail)
                 .crossfade(true)
                 .build(),
@@ -217,6 +216,6 @@ private fun DetailScreenPreview(){
             accessInfo = null,
             searchInfo = null
         )
-        DetailPage(volume = vol, false, {}, LocalContext.current, modifier = Modifier)
+        DetailPage(volume = vol, false, {}, modifier = Modifier)
     }
 }

@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -19,15 +20,17 @@ import com.example.bookstore.ui.screens.components.RetryScreen
 
 @Composable
 fun HomeScreen(
-    uiState: HomeUiState,
-    logoutAction: () -> Unit,
-    loggedOutAction: () -> Unit,
-    modifier: Modifier = Modifier
+  uiState: HomeUiState,
+  logoutAction: () -> Unit,
+  loggedOutAction: () -> Unit,
+  modifier: Modifier = Modifier
 ) {
     when (uiState) {
         is HomeUiState.Loading -> LoadingScreen(modifier)
         is HomeUiState.Success -> Homepage(uiState, logoutAction, modifier)
-        is HomeUiState.LoggedOut -> loggedOutAction.invoke()
+        is HomeUiState.LoggedOut -> {
+            LaunchedEffect(key1 = "loggedOutKey") { loggedOutAction.invoke() }
+        }
         else -> RetryScreen(stringResource(R.string.failed_loading), {}, modifier)
     }
 }
@@ -40,8 +43,8 @@ fun Homepage(
 ){
     Column(modifier =
     modifier
-        .fillMaxSize()
-        .padding(20.dp)
+      .fillMaxSize()
+      .padding(20.dp)
     ) {
         if((uiState as HomeUiState.Success).username != null) {
             Row(
@@ -54,7 +57,7 @@ fun Homepage(
                     style = MaterialTheme.typography.h4,
                     modifier = Modifier.weight(1.0f)
                 )
-                IconButton(onClick = logoutAction ) {
+                IconButton(onClick = logoutAction) {
                     Icon(
                         imageVector = Icons.Filled.Logout,
                         contentDescription = null,
@@ -64,7 +67,6 @@ fun Homepage(
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

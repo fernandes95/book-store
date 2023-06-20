@@ -2,7 +2,6 @@ package com.example.bookstore.ui.screens.components
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -32,7 +31,6 @@ fun VolumesNavHost(
         composable(route = Landing.route) {
             val vm: LandingViewModel = viewModel()
             LandingScreen(
-                navController = navController,
                 uiState = vm.uiState,
                 offlineAction = { navController.navigateSingleTopTo(Home.route) },
             )
@@ -40,9 +38,9 @@ fun VolumesNavHost(
         composable(route = Home.route) {
             val vm: HomeViewModel = viewModel()
             HomeScreen(
-                uiState = vm.uiState,
-                logoutAction = vm::logout,
-                loggedOutAction = { navController.navigateSingleTopTo(Landing.route) }
+              uiState = vm.uiState,
+              logoutAction = vm::logout,
+              loggedOutAction = { navController.navigateSingleTopTo(Landing.route) }
             )
         }
         composable(route = Search.route) {
@@ -70,7 +68,6 @@ fun VolumesNavHost(
             val vm: VolumeDetailViewModel = viewModel()
             DetailScreen(
                 uiState = vm.uiState,
-                context = LocalContext.current,
                 favAction = vm::setFavorite,
                 retryAction = vm::getVolume
                 )
