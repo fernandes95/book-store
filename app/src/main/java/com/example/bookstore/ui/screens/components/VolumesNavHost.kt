@@ -32,6 +32,7 @@ fun VolumesNavHost(
             val vm: LandingViewModel = viewModel()
             LandingScreen(
                 uiState = vm.uiState,
+                loginAction = { navController.navigateSingleTopInclusiveTo(Home.route) },
                 offlineAction = { navController.navigateSingleTopTo(Home.route) },
             )
         }
@@ -40,7 +41,7 @@ fun VolumesNavHost(
             HomeScreen(
               uiState = vm.uiState,
               logoutAction = vm::logout,
-              loggedOutAction = { navController.navigateSingleTopTo(Landing.route) }
+              loggedOutAction = { navController.navigateSingleTopInclusiveTo(Landing.route) }
             )
         }
         composable(route = Search.route) {
@@ -75,6 +76,24 @@ fun VolumesNavHost(
     }
 }
 
+fun NavHostController.navigateSingleTopInclusiveTo(route: String) =
+    this.navigate(route) {
+        // Pop up to the start destination of the graph to
+        // avoid building up a large stack of destinations
+        // on the back stack as users select items
+        popUpTo(
+            this@navigateSingleTopInclusiveTo.graph.findStartDestination().id
+        ) {
+//            saveState = true
+            inclusive = true
+        }
+        // Avoid multiple copies of the same destination when
+        // reselecting the same item
+        launchSingleTop = true
+        // Restore state when reselecting a previously selected item
+        restoreState = true
+    }
+
 fun NavHostController.navigateSingleTopTo(route: String) =
     this.navigate(route) {
         // Pop up to the start destination of the graph to
@@ -82,10 +101,7 @@ fun NavHostController.navigateSingleTopTo(route: String) =
         // on the back stack as users select items
         popUpTo(
             this@navigateSingleTopTo.graph.findStartDestination().id
-        ) {
-//            saveState = true
-            inclusive = true
-        }
+        )
         // Avoid multiple copies of the same destination when
         // reselecting the same item
         launchSingleTop = true

@@ -23,6 +23,7 @@ import com.google.android.gms.common.api.ApiException
 @Composable
 fun LandingScreen(
     uiState: LandingUiState,
+    loginAction: () -> Unit,
     offlineAction: () -> Unit,
     modifier: Modifier = Modifier
 ){
@@ -31,7 +32,7 @@ fun LandingScreen(
         rememberLauncherForActivityResult(contract =  GoogleApiContract()) { task ->
             try {
                 val gsa = task?.getResult(ApiException::class.java)
-                if (gsa != null) { offlineAction.invoke() }
+                if (gsa != null) { loginAction.invoke() }
             } catch (e: ApiException) {
                 Log.d("Error in AuthScreen%s", e.toString())
             }
@@ -45,7 +46,7 @@ fun LandingScreen(
             modifier
         )
         is LandingUiState.Success -> {
-            LaunchedEffect(key1 = "homeNavigationKey") { offlineAction.invoke() }
+            LaunchedEffect(key1 = "homeNavigationKey") { loginAction.invoke() }
         }
         else -> RetryScreen(stringResource(R.string.failed_loading), {}, modifier)
     }
@@ -107,7 +108,6 @@ fun LandingPage(
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable
